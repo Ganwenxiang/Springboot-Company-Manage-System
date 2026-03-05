@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.emps_project.mapper.SysEmpMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.emps_project.entity.SysEmp">
+        <id column="id" property="id"/>
+        <result column="dept_id" property="deptId"/>
+        <result column="emp_no" property="empNo"/>
+        <result column="emp_name" property="empName"/>
+        <result column="phone" property="phone"/>
+        <result column="job_title" property="jobTitle"/>
+        <result column="entry_date" property="entryDate"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- 扩展的ResultMap，包含部门名称 -->
+    <resultMap id="EmpWithDeptResultMap" type="com.example.emps_project.entity.SysEmp" extends="BaseResultMap">
+        <result column="dept_name" property="deptName"/>
+    </resultMap>
+
+    <select id="selectEmpList" resultMap="BaseResultMap">
+        SELECT * FROM sys_emp
+        <where>
+            <if test="empName != null and empName != ''">
+                AND emp_name LIKE concat('%', #{empName}, '%')
+            </if>
+            <if test="deptId != null">
+                AND dept_id = #{deptId}
+            </if>
+            <if test="empNo != null and empNo != ''">
+                AND emp_no = #{empNo}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insertEmp" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_emp(dept_id, emp_no, emp_name, phone, job_title, entry_date, create_time)
+        VALUES (#{deptId}, #{empNo}, #{empName}, #{phone}, #{jobTitle}, #{entryDate}, NOW())
+    </insert>
+
+    <select id="selectEmpById" resultMap="BaseResultMap">
+        SELECT * FROM sys_emp WHERE id = #{id}
+    </select>
+
+    <update id="updateEmp">
+        UPDATE sys_emp
+        <set>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="empName != null and empName != ''">emp_name = #{empName},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="jobTitle != null">job_title = #{jobTitle},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteEmpById">
+        DELETE FROM sys_emp WHERE id = #{id}
+    </delete>
+
+    <!-- 高级搜索员工（支持多条件联合查询，包含部门名称） -->
+    <select id="searchEmployees" resultMap="EmpWithDeptResultMap">
+        SELECT 
+            e.*,
+            d.dept_name
+        FROM sys_emp e
+        LEFT JOIN sys_dept d ON e.dept_id = d.id
+        <where>
+            <!-- 姓名模糊搜索 -->
+            <if test="empName != null and empName != ''">
+                AND e.emp_name LIKE concat('%', #{empName}, '%')
+            </if>
+            <!-- 工号精确搜索 -->
+            <if test="empNo != null and empNo != ''">
+                AND e.emp_no LIKE concat('%', #{empNo}, '%')
+            </if>
+            <!-- 部门ID搜索 -->
+            <if test="deptId != null">
+                AND e.dept_id = #{deptId}
+            </if>
+            <!-- 职位搜索 -->
+            <if test="jobTitle != null and jobTitle != ''">
+                AND e.job_title LIKE concat('%', #{jobTitle}, '%')
+            </if>
+            <!-- 手机号搜索 -->
+            <if test="phone != null and phone != ''">
+                AND e.phone LIKE concat('%', #{phone}, '%')
+            </if>
+            <!-- 入职日期范围搜索（开始日期） -->
+            <if test="entryDateStart != null">
+                <![CDATA[ AND e.entry_date >= #{entryDateStart} ]]>
+            </if>
+            <!-- 入职日期范围搜索（结束日期） -->
+            <if test="entryDateEnd != null">
+                <![CDATA[ AND e.entry_date <= #{entryDateEnd} ]]>
+            </if>
+        </where>
+        ORDER BY e.create_time DESC
+    </select>
+
+</mapper>

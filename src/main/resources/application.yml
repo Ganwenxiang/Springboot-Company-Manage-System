@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: emps_Project
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/emps_db?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: 1234
+
+  # ==========================
+  # Redis 配置
+  # ==========================
+
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    password: 123456
+
+# ==========================
+# MyBatis 配置
+# ==========================
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# ==========================
+# PageHelper 配置
+# ==========================
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
