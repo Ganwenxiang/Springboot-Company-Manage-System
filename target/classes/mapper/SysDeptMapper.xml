@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.emps_project.mapper.SysDeptMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.emps_project.entity.SysDept">
+        <id column="id" property="id"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="dept_name" property="deptName"/>
+        <result column="order_num" property="orderNum"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <!--    id为数据表的主键  result为普通字段   property为java的属性名
+        namespace 意思为该xml文件专门为该接口服务
+        resultMap为将查出来的结果按照BaseResultMap的规则转化为java对象
+        -->
+    </resultMap>
+
+    <select id="selectAllDepts" resultType="com.example.emps_project.entity.SysDept">
+        SELECT * FROM sys_dept ORDER BY order_num ASC , create_time ASC
+    </select>
+
+    <insert id="insertDept" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_dept(parent_id, dept_name, order_num, status, create_time, update_time)
+        VALUES (#{parentId}, #{deptName}, #{orderNum}, #{status}, NOW(), NOW())
+        #  useGeneratedKeys主键是由MyBatis主动生成的   keyProperty当插入成功后，MyBatis会将数据库自动生成的id自动赋值回传入的java对象的id属性中，这样在代码里能立即知道新数据的id是多少
+    </insert>
+
+    <select id="checkChildCount" resultType="int">
+        SELECT count(1) FROM sys_dept WHERE parent_id = #{deptId}
+    </select>
+
+    <delete id="deleteDeptById">
+        DELETE FROM sys_dept WHERE id = #{id}
+    </delete>
+
+</mapper>
