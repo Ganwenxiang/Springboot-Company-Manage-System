@@ -47,7 +47,7 @@ public class SysEmpController {
      */
     @GetMapping("/{id}")
     public Result<SysEmp> getById(@PathVariable Long id) {
-        SysEmp emp = sysEmpService.selectEmpById(id);
+        SysEmp emp = sysEmpService.getById(id);
         return Result.success(emp);
     }
 

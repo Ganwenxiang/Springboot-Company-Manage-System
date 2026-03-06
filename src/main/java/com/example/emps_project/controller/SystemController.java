@@ -177,10 +177,23 @@ public class SystemController {
      * 查询角色列表
      */
     @GetMapping("/roles")
-    public Result<List<SysRole>> roleList() {
+    public Result<Map<String, Object>> roleList(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            String roleName,
+            Integer status) {
         try {
-            List<SysRole> list = sysRoleService.selectAll();
-            return Result.success(list);
+            PageHelper.startPage(pageNum, pageSize);
+            SysRole query = new SysRole();
+            query.setRoleName(roleName);
+            query.setStatus(status);
+            List<SysRole> list = sysRoleService.selectList(query);
+            PageInfo<SysRole> pageInfo = new PageInfo<>(list);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("list", pageInfo.getList());
+            data.put("total", pageInfo.getTotal());
+            return Result.success(data);
         } catch (Exception e) {
             log.error("查询角色列表失败: {}", e.getMessage());
             return Result.error("查询角色列表失败");

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { getToken } from '@/utils/auth'
 
@@ -261,8 +262,9 @@ router.beforeEach(async (to, from, next) => {
     if (userStore.hasPermission(to.meta.permission)) {
       next()
     } else {
-      // 无权限，跳转到首页
-      next('/')
+      // 无权限，显示提示
+      ElMessage.warning('权限不允许查看')
+      next(false)
     }
     return
   }
