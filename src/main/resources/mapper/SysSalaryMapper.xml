@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.emps_project.mapper.SysSalaryMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.emps_project.entity.SysSalary">
+        <id column="id" property="id"/>
+        <result column="emp_id" property="empId"/>
+        <result column="salary_month" property="salaryMonth"/>
+        <result column="base_salary" property="baseSalary"/>
+        <result column="position_salary" property="positionSalary"/>
+        <result column="overtime_pay" property="overtimePay"/>
+        <result column="bonus" property="bonus"/>
+        <result column="subsidy" property="subsidy"/>
+        <result column="attendance_deduction" property="attendanceDeduction"/>
+        <result column="social_security" property="socialSecurity"/>
+        <result column="tax" property="tax"/>
+        <result column="total_salary" property="totalSalary"/>
+        <result column="actual_salary" property="actualSalary"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="EmpWithResultMap" type="com.example.emps_project.entity.SysSalary" extends="BaseResultMap">
+        <result column="emp_name" property="empName"/>
+        <result column="emp_no" property="empNo"/>
+        <result column="dept_name" property="deptName"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        s.id, s.emp_id, s.salary_month, s.base_salary, s.position_salary, s.overtime_pay,
+        s.bonus, s.subsidy, s.attendance_deduction, s.social_security, s.tax,
+        s.total_salary, s.actual_salary, s.status, s.create_time
+    </sql>
+
+    <select id="selectById" resultMap="EmpWithResultMap">
+        SELECT <include refid="Base_Column_List"/>,
+               e.emp_name, e.emp_no, d.dept_name
+        FROM sys_salary s
+        LEFT JOIN sys_emp e ON s.emp_id = e.id
+        LEFT JOIN sys_dept d ON e.dept_id = d.id
+        WHERE s.id = #{id}
+    </select>
+
+    <select id="selectByEmpIdAndMonth" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_salary s
+        WHERE s.emp_id = #{empId} AND s.salary_month = #{salaryMonth}
+    </select>
+
+    <select id="selectList" resultMap="EmpWithResultMap">
+        SELECT <include refid="Base_Column_List"/>,
+               e.emp_name, e.emp_no, d.dept_name
+        FROM sys_salary s
+        LEFT JOIN sys_emp e ON s.emp_id = e.id
+        LEFT JOIN sys_dept d ON e.dept_id = d.id
+        <where>
+            <if test="empId != null">
+                AND s.emp_id = #{empId}
+            </if>
+            <if test="empName != null and empName != ''">
+                AND e.emp_name LIKE CONCAT('%', #{empName}, '%')
+            </if>
+            <if test="salaryMonth != null and salaryMonth != ''">
+                AND s.salary_month = #{salaryMonth}
+            </if>
+            <if test="status != null">
+                AND s.status = #{status}
+            </if>
+        </where>
+        ORDER BY s.salary_month DESC, d.id, e.id
+    </select>
+
+    <select id="selectMySalaries" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_salary s
+        WHERE s.emp_id = #{empId}
+        ORDER BY s.salary_month DESC
+    </select>
+
+    <insert id="insert" parameterType="com.example.emps_project.entity.SysSalary" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_salary (
+            emp_id, salary_month, base_salary, position_salary, overtime_pay, bonus, subsidy,
+            attendance_deduction, social_security, tax, total_salary, actual_salary, status
+        )
+        VALUES (
+            #{empId}, #{salaryMonth}, #{baseSalary}, #{positionSalary}, #{overtimePay}, #{bonus}, #{subsidy},
+            #{attendanceDeduction}, #{socialSecurity}, #{tax}, #{totalSalary}, #{actualSalary}, #{status}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.example.emps_project.entity.SysSalary">
+        UPDATE sys_salary
+        <set>
+            <if test="baseSalary != null">base_salary = #{baseSalary},</if>
+            <if test="positionSalary != null">position_salary = #{positionSalary},</if>
+            <if test="overtimePay != null">overtime_pay = #{overtimePay},</if>
+            <if test="bonus != null">bonus = #{bonus},</if>
+            <if test="subsidy != null">subsidy = #{subsidy},</if>
+            <if test="attendanceDeduction != null">attendance_deduction = #{attendanceDeduction},</if>
+            <if test="socialSecurity != null">social_security = #{socialSecurity},</if>
+            <if test="tax != null">tax = #{tax},</if>
+            <if test="totalSalary != null">total_salary = #{totalSalary},</if>
+            <if test="actualSalary != null">actual_salary = #{actualSalary},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM sys_salary WHERE id = #{id}
+    </delete>
+
+    <update id="updatePayStatus">
+        UPDATE sys_salary SET status = #{status} WHERE id = #{id}
+    </update>
+
+</mapper>

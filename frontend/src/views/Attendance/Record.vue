@@ -1,0 +1,291 @@
+<template>
+  <div class="attendance-record-container">
+    <!-- 搜索栏 -->
+    <el-card shadow="never" class="search-card">
+      <el-form :inline="true" :model="searchForm" class="search-form">
+        <el-form-item label="日期范围">
+          <el-date-picker
+            v-model="dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="YYYY-MM-DD"
+            style="width: 240px"
+            @change="handleDateChange"
+          />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model="searchForm.status" placeholder="全部" clearable style="width: 120px">
+            <el-option label="正常" :value="1" />
+            <el-option label="迟到" :value="2" />
+            <el-option label="早退" :value="3" />
+            <el-option label="缺勤" :value="4" />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch">
+            <el-icon><Search /></el-icon>
+            搜索
+          </el-button>
+          <el-button @click="handleReset">
+            <el-icon><Refresh /></el-icon>
+            重置
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <!-- 数据表格 -->
+    <el-card shadow="never" class="table-card">
+      <template #header>
+        <div class="card-header">
+          <span class="card-title">考勤记录</span>
+          <div class="card-stats">
+            <span class="stat-item">正常: {{ stats.normalDays }}天</span>
+            <span class="stat-item stat-late">迟到: {{ stats.lateDays }}天</span>
+            <span class="stat-item stat-early">早退: {{ stats.earlyDays }}天</span>
+            <span class="stat-item stat-absent">缺勤: {{ stats.absentDays }}天</span>
+          </div>
+        </div>
+      </template>
+
+      <el-table
+        :data="tableData"
+        style="width: 100%"
+        v-loading="loading"
+        :empty-text="emptyText"
+      >
+        <el-table-column prop="attendanceDate" label="日期" width="120" />
+        <el-table-column prop="checkInTime" label="签到时间" width="100">
+          <template #default="{ row }">
+            <span v-if="row.checkInTime">{{ row.checkInTime }}</span>
+            <span v-else class="text-placeholder">--</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="checkOutTime" label="签退时间" width="100">
+          <template #default="{ row }">
+            <span v-if="row.checkOutTime">{{ row.checkOutTime }}</span>
+            <span v-else class="text-placeholder">--</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="workHours" label="工作时长" width="100" align="center">
+          <template #default="{ row }">
+            {{ row.workHours || 0 }}小时
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag v-if="row.status === 1" type="success">正常</el-tag>
+            <el-tag v-else-if="row.status === 2" type="warning">迟到</el-tag>
+            <el-tag v-else-if="row.status === 3" type="warning">早退</el-tag>
+            <el-tag v-else-if="row.status === 4" type="danger">缺勤</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="checkInLocation" label="签到地点" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="checkOutLocation" label="签退地点" min-width="200" show-overflow-tooltip />
+      </el-table>
+
+      <!-- 分页 -->
+      <el-pagination
+        v-model:current-page="pagination.pageNum"
+        v-model:page-size="pagination.pageSize"
+        :page-sizes="[10, 20, 50, 100]"
+        layout="total, prev, pager, next"
+        :total="pagination.total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        class="pagination"
+      />
+    </el-card>
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive, computed, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { getMyMonthly } from '@/api/attendance'
+import dayjs from 'dayjs'
+
+// 日期范围
+const dateRange = ref([])
+
+// 搜索表单
+const searchForm = reactive({
+  startDate: '',
+  endDate: '',
+  status: null
+})
+
+// 表格数据
+const tableData = ref([])
+const loading = ref(false)
+const emptyText = ref('暂无数据')
+
+// 分页
+const pagination = reactive({
+  pageNum: 1,
+  pageSize: 10,
+  total: 0
+})
+
+// 统计数据
+const stats = reactive({
+  normalDays: 0,
+  lateDays: 0,
+  earlyDays: 0,
+  absentDays: 0
+})
+
+// 加载考勤记录
+const loadRecords = async () => {
+  loading.value = true
+  try {
+    const params = {
+      startDate: searchForm.startDate || dayjs().startOf('month').format('YYYY-MM-DD'),
+      endDate: searchForm.endDate || dayjs().endOf('month').format('YYYY-MM-DD')
+    }
+
+    const res = await getMyMonthly(params)
+    let records = res.data || []
+
+    // 按状态筛选
+    if (searchForm.status !== null) {
+      records = records.filter(r => r.status === searchForm.status)
+    }
+
+    // 按日期倒序排列
+    records.sort((a, b) => b.attendanceDate.localeCompare(a.attendanceDate))
+
+    // 更新统计数据
+    updateStats(records)
+
+    // 分页处理
+    pagination.total = records.length
+    const start = (pagination.pageNum - 1) * pagination.pageSize
+    const end = start + pagination.pageSize
+    tableData.value = records.slice(start, end)
+  } catch (error) {
+    ElMessage.error('加载考勤记录失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 更新统计数据
+const updateStats = (records) => {
+  stats.normalDays = records.filter(r => r.status === 1).length
+  stats.lateDays = records.filter(r => r.status === 2).length
+  stats.earlyDays = records.filter(r => r.status === 3).length
+  stats.absentDays = records.filter(r => r.status === 4).length
+}
+
+// 日期范围变化
+const handleDateChange = (value) => {
+  if (value && value.length === 2) {
+    searchForm.startDate = value[0]
+    searchForm.endDate = value[1]
+  } else {
+    searchForm.startDate = ''
+    searchForm.endDate = ''
+  }
+}
+
+// 搜索
+const handleSearch = () => {
+  pagination.pageNum = 1
+  loadRecords()
+}
+
+// 重置
+const handleReset = () => {
+  dateRange.value = []
+  searchForm.startDate = ''
+  searchForm.endDate = ''
+  searchForm.status = null
+  handleSearch()
+}
+
+// 分页大小变化
+const handleSizeChange = (val) => {
+  pagination.pageSize = val
+  pagination.pageNum = 1
+  loadRecords()
+}
+
+// 页码变化
+const handleCurrentChange = (val) => {
+  pagination.pageNum = val
+  loadRecords()
+}
+
+onMounted(() => {
+  // 默认查询当月数据
+  const startOfMonth = dayjs().startOf('month').format('YYYY-MM-DD')
+  const endOfMonth = dayjs().endOf('month').format('YYYY-MM-DD')
+  dateRange.value = [startOfMonth, endOfMonth]
+  searchForm.startDate = startOfMonth
+  searchForm.endDate = endOfMonth
+  loadRecords()
+})
+</script>
+
+<style scoped lang="css">
+.attendance-record-container {
+  padding: 20px;
+}
+
+.search-card {
+  margin-bottom: 20px;
+}
+
+.search-form .el-form-item {
+  margin-bottom: 0;
+}
+
+.table-card {
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #303133;
+  }
+
+  .card-stats {
+    display: flex;
+    gap: 20px;
+  }
+
+  .stat-item {
+    font-size: 14px;
+    color: #606266;
+  }
+
+  .stat-item.stat-late {
+    color: #E6A23C;
+  }
+
+  .stat-item.stat-early {
+    color: #F0B429;
+  }
+
+  .stat-item.stat-absent {
+    color: #F56C6C;
+  }
+
+  .pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+.text-placeholder {
+  color: #C0C4CC;
+}
+</style>

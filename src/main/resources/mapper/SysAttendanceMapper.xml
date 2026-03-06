@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.emps_project.mapper.SysAttendanceMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.emps_project.entity.SysAttendance">
+        <id column="id" property="id"/>
+        <result column="emp_id" property="empId"/>
+        <result column="attendance_date" property="attendanceDate"/>
+        <result column="check_in_time" property="checkInTime"/>
+        <result column="check_out_time" property="checkOutTime"/>
+        <result column="work_hours" property="workHours"/>
+        <result column="status" property="status"/>
+        <result column="check_in_location" property="checkInLocation"/>
+        <result column="check_out_location" property="checkOutLocation"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="EmpWithResultMap" type="com.example.emps_project.entity.SysAttendance" extends="BaseResultMap">
+        <result column="emp_name" property="empName"/>
+        <result column="emp_no" property="empNo"/>
+        <result column="dept_name" property="deptName"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        a.id, a.emp_id, a.attendance_date, a.check_in_time, a.check_out_time,
+        a.work_hours, a.status, a.check_in_location, a.check_out_location, a.create_time
+    </sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_attendance a
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="selectByEmpIdAndDate" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_attendance a
+        WHERE a.emp_id = #{empId} AND a.attendance_date = #{attendanceDate}
+    </select>
+
+    <select id="selectList" resultMap="EmpWithResultMap">
+        SELECT <include refid="Base_Column_List"/>,
+               e.emp_name, e.emp_no, d.dept_name
+        FROM sys_attendance a
+        LEFT JOIN sys_emp e ON a.emp_id = e.id
+        LEFT JOIN sys_dept d ON e.dept_id = d.id
+        <where>
+            <if test="empId != null">
+                AND a.emp_id = #{empId}
+            </if>
+            <if test="empName != null and empName != ''">
+                AND e.emp_name LIKE CONCAT('%', #{empName}, '%')
+            </if>
+            <if test="attendanceDate != null">
+                AND a.attendance_date = #{attendanceDate}
+            </if>
+            <if test="startDate != null">
+                <![CDATA[ AND a.attendance_date >= #{startDate} ]]>
+            </if>
+            <if test="endDate != null">
+                <![CDATA[ AND a.attendance_date <= #{endDate} ]]>
+            </if>
+            <if test="status != null">
+                AND a.status = #{status}
+            </if>
+        </where>
+        ORDER BY a.attendance_date DESC, a.check_in_time DESC
+    </select>
+
+    <select id="selectTodayByEmpId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_attendance a
+        WHERE a.emp_id = #{empId} AND a.attendance_date = CURDATE()
+    </select>
+
+    <select id="selectMonthlyByEmpId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_attendance a
+        WHERE a.emp_id = #{empId}
+        AND YEAR(a.attendance_date) = #{year}
+        AND MONTH(a.attendance_date) = #{month}
+        ORDER BY a.attendance_date DESC
+    </select>
+
+    <insert id="insert" parameterType="com.example.emps_project.entity.SysAttendance" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_attendance (emp_id, attendance_date, check_in_time, check_out_time, work_hours, status, check_in_location, check_out_location)
+        VALUES (#{empId}, #{attendanceDate}, #{checkInTime}, #{checkOutTime}, #{workHours}, #{status}, #{checkInLocation}, #{checkOutLocation})
+    </insert>
+
+    <update id="update" parameterType="com.example.emps_project.entity.SysAttendance">
+        UPDATE sys_attendance
+        <set>
+            <if test="checkInTime != null">check_in_time = #{checkInTime},</if>
+            <if test="checkOutTime != null">check_out_time = #{checkOutTime},</if>
+            <if test="workHours != null">work_hours = #{workHours},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="checkInLocation != null">check_in_location = #{checkInLocation},</if>
+            <if test="checkOutLocation != null">check_out_location = #{checkOutLocation},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM sys_attendance WHERE id = #{id}
+    </delete>
+
+    <select id="selectMonthlySummary" resultMap="EmpWithResultMap">
+        SELECT <include refid="Base_Column_List"/>,
+               e.emp_name, e.emp_no, d.dept_name
+        FROM sys_attendance a
+        LEFT JOIN sys_emp e ON a.emp_id = e.id
+        LEFT JOIN sys_dept d ON e.dept_id = d.id
+        WHERE YEAR(a.attendance_date) = #{year}
+        AND MONTH(a.attendance_date) = #{month}
+        ORDER BY d.id, a.emp_id, a.attendance_date
+    </select>
+
+    <!-- 统计今日出勤人数 -->
+    <select id="countTodayAttendance" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT emp_id) FROM sys_attendance
+        WHERE attendance_date = CURDATE()
+        AND status IN (1, 2, 3)
+    </select>
+
+    <!-- 获取指定日期的考勤统计 -->
+    <select id="getDailyStats" resultType="java.util.Map">
+        SELECT
+            COUNT(DISTINCT emp_id) as actual,
+            SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) as late,
+            SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END) as early_leave,
+            SUM(CASE WHEN status = 4 THEN 1 ELSE 0 END) as absent
+        FROM sys_attendance
+        WHERE attendance_date = #{date}
+    </select>
+
+    <!-- 获取指定部门月份考勤统计 -->
+    <select id="getMonthlyStatsByDept" resultType="java.util.Map">
+        SELECT
+            COUNT(DISTINCT a.attendance_date) as working_days,
+            (SELECT COUNT(*) FROM sys_emp WHERE dept_id = #{deptId} AND emp_status = 1) as expected_count,
+            COUNT(DISTINCT a.emp_id) as actual_count
+        FROM sys_attendance a
+        LEFT JOIN sys_emp e ON a.emp_id = e.id
+        WHERE e.dept_id = #{deptId}
+        AND DATE_FORMAT(a.attendance_date, '%Y-%m') = #{month}
+    </select>
+
+</mapper>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.emps_project.mapper.SysOvertimeMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.emps_project.entity.SysOvertime">
+        <id column="id" property="id"/>
+        <result column="emp_id" property="empId"/>
+        <result column="overtime_date" property="overtimeDate"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="overtime_hours" property="overtimeHours"/>
+        <result column="overtime_type" property="overtimeType"/>
+        <result column="reason" property="reason"/>
+        <result column="status" property="status"/>
+        <result column="approver_id" property="approverId"/>
+        <result column="approve_time" property="approveTime"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="EmpWithResultMap" type="com.example.emps_project.entity.SysOvertime" extends="BaseResultMap">
+        <result column="emp_name" property="empName"/>
+        <result column="emp_no" property="empNo"/>
+        <result column="dept_name" property="deptName"/>
+        <result column="approver_name" property="approverName"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        o.id, o.emp_id, o.overtime_date, o.start_time, o.end_time, o.overtime_hours,
+        o.overtime_type, o.reason, o.status, o.approver_id, o.approve_time, o.create_time
+    </sql>
+
+    <select id="selectById" resultMap="EmpWithResultMap">
+        SELECT <include refid="Base_Column_List"/>,
+               e.emp_name, e.emp_no, d.dept_name,
+               a.emp_name as approver_name
+        FROM sys_overtime o
+        LEFT JOIN sys_emp e ON o.emp_id = e.id
+        LEFT JOIN sys_dept d ON e.dept_id = d.id
+        LEFT JOIN sys_emp a ON o.approver_id = a.id
+        WHERE o.id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="EmpWithResultMap">
+        SELECT <include refid="Base_Column_List"/>,
+               e.emp_name, e.emp_no, d.dept_name,
+               a.emp_name as approver_name
+        FROM sys_overtime o
+        LEFT JOIN sys_emp e ON o.emp_id = e.id
+        LEFT JOIN sys_dept d ON e.dept_id = d.id
+        LEFT JOIN sys_emp a ON o.approver_id = a.id
+        <where>
+            <if test="empId != null">
+                AND o.emp_id = #{empId}
+            </if>
+            <if test="empName != null and empName != ''">
+                AND e.emp_name LIKE CONCAT('%', #{empName}, '%')
+            </if>
+            <if test="overtimeType != null">
+                AND o.overtime_type = #{overtimeType}
+            </if>
+            <if test="status != null">
+                AND o.status = #{status}
+            </if>
+            <if test="startDate != null">
+                <![CDATA[ AND o.overtime_date >= #{startDate} ]]>
+            </if>
+            <if test="endDate != null">
+                <![CDATA[ AND o.overtime_date <= #{endDate} ]]>
+            </if>
+        </where>
+        ORDER BY o.overtime_date DESC, o.create_time DESC
+    </select>
+
+    <select id="selectMyRecords" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_overtime o
+        WHERE o.emp_id = #{empId}
+        ORDER BY o.overtime_date DESC, o.create_time DESC
+    </select>
+
+    <select id="selectPending" resultMap="EmpWithResultMap">
+        SELECT <include refid="Base_Column_List"/>,
+               e.emp_name, e.emp_no, d.dept_name
+        FROM sys_overtime o
+        LEFT JOIN sys_emp e ON o.emp_id = e.id
+        LEFT JOIN sys_dept d ON e.dept_id = d.id
+        WHERE o.status = 0
+        ORDER BY o.overtime_date ASC, o.create_time ASC
+    </select>
+
+    <insert id="insert" parameterType="com.example.emps_project.entity.SysOvertime" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_overtime (emp_id, overtime_date, start_time, end_time, overtime_hours, overtime_type, reason, status)
+        VALUES (#{empId}, #{overtimeDate}, #{startTime}, #{endTime}, #{overtimeHours}, #{overtimeType}, #{reason}, #{status})
+    </insert>
+
+    <update id="update" parameterType="com.example.emps_project.entity.SysOvertime">
+        UPDATE sys_overtime
+        <set>
+            <if test="overtimeDate != null">overtime_date = #{overtimeDate},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="overtimeHours != null">overtime_hours = #{overtimeHours},</if>
+            <if test="overtimeType != null">overtime_type = #{overtimeType},</if>
+            <if test="reason != null">reason = #{reason},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM sys_overtime WHERE id = #{id}
+    </delete>
+
+    <update id="approve">
+        UPDATE sys_overtime
+        SET status = #{status},
+            approver_id = #{approverId},
+            approve_time = #{approveTime}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据状态统计加班数量 -->
+    <select id="countByStatus" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM sys_overtime WHERE status = #{status}
+    </select>
+
+</mapper>

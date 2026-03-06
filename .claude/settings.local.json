@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mysql:*)",
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(mvn spring-boot:run:*)",
+      "Bash(timeout:*)",
+      "Bash(ping:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(npm create:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(powershell -Command \"\\(Get-ChildItem -Recurse -Filter ''*.vue'' | Get-Content\\) -replace ''lang=\"\"scss\"\"'', ''lang=\"\"css\"\"'' | Set-Content -As String\")",
+      "Bash(find:*)",
+      "Bash(tasklist:*)",
+      "Bash(mvn spring-boot:stop:*)",
+      "Bash(cmd:*)"
+    ]
+  }
+}

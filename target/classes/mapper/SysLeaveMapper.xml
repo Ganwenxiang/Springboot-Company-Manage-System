@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.emps_project.mapper.SysLeaveMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.emps_project.entity.SysLeave">
+        <id column="id" property="id"/>
+        <result column="emp_id" property="empId"/>
+        <result column="leave_type" property="leaveType"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="leave_days" property="leaveDays"/>
+        <result column="reason" property="reason"/>
+        <result column="status" property="status"/>
+        <result column="approver_id" property="approverId"/>
+        <result column="approve_time" property="approveTime"/>
+        <result column="approve_remark" property="approveRemark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="EmpWithResultMap" type="com.example.emps_project.entity.SysLeave" extends="BaseResultMap">
+        <result column="emp_name" property="empName"/>
+        <result column="emp_no" property="empNo"/>
+        <result column="dept_name" property="deptName"/>
+        <result column="approver_name" property="approverName"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        l.id, l.emp_id, l.leave_type, l.start_date, l.end_date, l.leave_days, l.reason,
+        l.status, l.approver_id, l.approve_time, l.approve_remark, l.create_time, l.update_time
+    </sql>
+
+    <select id="selectById" resultMap="EmpWithResultMap">
+        SELECT <include refid="Base_Column_List"/>,
+               e.emp_name, e.emp_no, d.dept_name,
+               a.emp_name as approver_name
+        FROM sys_leave l
+        LEFT JOIN sys_emp e ON l.emp_id = e.id
+        LEFT JOIN sys_dept d ON e.dept_id = d.id
+        LEFT JOIN sys_emp a ON l.approver_id = a.id
+        WHERE l.id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="EmpWithResultMap">
+        SELECT <include refid="Base_Column_List"/>,
+               e.emp_name, e.emp_no, d.dept_name,
+               a.emp_name as approver_name
+        FROM sys_leave l
+        LEFT JOIN sys_emp e ON l.emp_id = e.id
+        LEFT JOIN sys_dept d ON e.dept_id = d.id
+        LEFT JOIN sys_emp a ON l.approver_id = a.id
+        <where>
+            <if test="empId != null">
+                AND l.emp_id = #{empId}
+            </if>
+            <if test="empName != null and empName != ''">
+                AND e.emp_name LIKE CONCAT('%', #{empName}, '%')
+            </if>
+            <if test="leaveType != null">
+                AND l.leave_type = #{leaveType}
+            </if>
+            <if test="status != null">
+                AND l.status = #{status}
+            </if>
+            <if test="startDateQuery != null">
+                <![CDATA[ AND l.start_date >= #{startDateQuery} ]]>
+            </if>
+            <if test="endDateQuery != null">
+                <![CDATA[ AND l.end_date <= #{endDateQuery} ]]>
+            </if>
+        </where>
+        ORDER BY l.create_time DESC
+    </select>
+
+    <select id="selectMyRequests" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_leave l
+        WHERE l.emp_id = #{empId}
+        ORDER BY l.create_time DESC
+    </select>
+
+    <select id="selectPending" resultMap="EmpWithResultMap">
+        SELECT <include refid="Base_Column_List"/>,
+               e.emp_name, e.emp_no, d.dept_name
+        FROM sys_leave l
+        LEFT JOIN sys_emp e ON l.emp_id = e.id
+        LEFT JOIN sys_dept d ON e.dept_id = d.id
+        WHERE l.status = 0
+        ORDER BY l.create_time ASC
+    </select>
+
+    <insert id="insert" parameterType="com.example.emps_project.entity.SysLeave" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_leave (emp_id, leave_type, start_date, end_date, leave_days, reason, status)
+        VALUES (#{empId}, #{leaveType}, #{startDate}, #{endDate}, #{leaveDays}, #{reason}, #{status})
+    </insert>
+
+    <update id="update" parameterType="com.example.emps_project.entity.SysLeave">
+        UPDATE sys_leave
+        <set>
+            <if test="leaveType != null">leave_type = #{leaveType},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="leaveDays != null">leave_days = #{leaveDays},</if>
+            <if test="reason != null">reason = #{reason},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM sys_leave WHERE id = #{id}
+    </delete>
+
+    <update id="approve">
+        UPDATE sys_leave
+        SET status = #{status},
+            approver_id = #{approverId},
+            approve_time = NOW(),
+            approve_remark = #{remark}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据状态统计请假数量 -->
+    <select id="countByStatus" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM sys_leave WHERE status = #{status}
+    </select>
+
+</mapper>

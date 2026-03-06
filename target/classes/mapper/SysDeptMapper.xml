@@ -36,4 +36,26 @@
         DELETE FROM sys_dept WHERE id = #{id}
     </delete>
 
+    <!-- 查询所有部门及员工数量 -->
+    <select id="selectAllDeptsWithCount" resultType="java.util.Map">
+        SELECT
+            d.id, d.parent_id, d.dept_name, d.order_num, d.status, d.create_time, d.update_time,
+            (SELECT COUNT(*) FROM sys_emp WHERE dept_id = d.id AND emp_status = 1) as emp_count
+        FROM sys_dept d
+        ORDER BY d.order_num ASC, d.create_time ASC
+    </select>
+
+    <!-- 更新部门 -->
+    <update id="updateDept">
+        UPDATE sys_dept
+        <set>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="deptName != null and deptName != ''">dept_name = #{deptName},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
 </mapper>

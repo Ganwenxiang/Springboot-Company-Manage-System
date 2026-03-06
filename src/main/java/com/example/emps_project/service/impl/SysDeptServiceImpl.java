@@ -67,6 +67,16 @@ public class SysDeptServiceImpl implements ISysDeptService {
     }
 
     @Override
+    public int updateDept(SysDept dept) {
+        int rows = sysDeptMapper.updateDept(dept);
+        if (rows > 0) {
+            //数据变动，删除缓存
+            redisTemplate.delete(CACHE_KEY);
+        }
+        return rows;
+    }
+
+    @Override
     public int deleteDeptById(Long id) {
         //如果有子部门，不允许删除
         int childCount = sysDeptMapper.checkChildCount(id);
@@ -85,9 +95,9 @@ public class SysDeptServiceImpl implements ISysDeptService {
      */
     private List<SysDept> buildTree(List<SysDept> depts) {
         List<SysDept> returnList = new ArrayList<>();
-        // 1. 遍历所有部门，找到根节点 (ParentId = 0)
+        // 1. 遍历所有部门，找到根节点 (ParentId = null 或 0)
         for (SysDept dept : depts) {
-            if (dept.getParentId() == 0) {
+            if (dept.getParentId() == null || dept.getParentId() == 0) {
                 // 2. 递归查找该根节点下的子节点
                 recursionFn(depts, dept);
                 returnList.add(dept);

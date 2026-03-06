@@ -3,6 +3,7 @@ package com.example.emps_project.mapper;
 import com.example.emps_project.entity.SysDept;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface SysDeptMapper {
@@ -26,4 +27,14 @@ public interface SysDeptMapper {
      * 检查某个部门下是否有子部门 (用于删除前的校验)
      */
     int checkChildCount(Long deptId);
+
+    /**
+     * 查询所有部门及员工数量
+     */
+    List<Map<String, Object>> selectAllDeptsWithCount();
+
+    /**
+     * 更新部门
+     */
+    int updateDept(SysDept dept);
 }

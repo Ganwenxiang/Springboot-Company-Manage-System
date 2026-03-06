@@ -40,4 +40,11 @@ public interface SysEmpMapper {
      * @return 员工列表（包含部门名称）
      */
     List<SysEmp> searchEmployees(SysEmp emp);
+
+    /**
+     * 根据状态统计员工数量
+     * @param status 员工状态：1在职 2离职 3停职
+     * @return 员工数量
+     */
+    Integer countByStatus(Integer status);
 }

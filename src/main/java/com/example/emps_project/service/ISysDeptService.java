@@ -18,6 +18,12 @@ public interface ISysDeptService {
     int insertDept(SysDept dept);
 
     /**
+     * @param dept
+     * @return 更新部门
+     */
+    int updateDept(SysDept dept);
+
+    /**
      * @param id
      * @return 根据id删除部门
      */
