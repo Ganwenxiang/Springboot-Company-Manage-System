@@ -29,9 +29,7 @@ public class AttendanceController {
     @Autowired
     private IAttendanceService attendanceService;
 
-    /**
-     * 员工签到
-     */
+    // 员工签到打卡 | Spring Security、LoginUser上下文
     @PostMapping("/check-in")
     public Result<Void> checkIn(@RequestBody Map<String, String> request) {
         try {
@@ -45,9 +43,7 @@ public class AttendanceController {
         }
     }
 
-    /**
-     * 员工签退
-     */
+    // 员工签退打卡 | Spring Security、LoginUser上下文
     @PostMapping("/check-out")
     public Result<Void> checkOut(@RequestBody Map<String, String> request) {
         try {
@@ -61,9 +57,7 @@ public class AttendanceController {
         }
     }
 
-    /**
-     * 获取今日考勤
-     */
+    // 获取今日考勤记录 | Spring Security、MyBatis查询
     @GetMapping("/my-today")
     public Result<Map<String, Object>> getMyToday() {
         try {
@@ -90,9 +84,7 @@ public class AttendanceController {
         }
     }
 
-    /**
-     * 查询月度考勤
-     */
+    // 查询月度考勤记录 | Spring Security、MyBatis
     @GetMapping("/monthly")
     public Result<List<SysAttendance>> getMonthly(
             @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().year}") Integer year,
@@ -107,9 +99,7 @@ public class AttendanceController {
         }
     }
 
-    /**
-     * 管理端查询考勤记录
-     */
+    // 管理端分页查询考勤记录 | PageHelper分页、DateTimeFormat日期格式化
     @GetMapping
     public Result<PageInfo<SysAttendance>> list(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -138,9 +128,7 @@ public class AttendanceController {
         }
     }
 
-    /**
-     * 修正考勤记录
-     */
+    // 修正考勤记录 | MyBatis更新
     @PutMapping("/{id}")
     public Result<Void> update(@PathVariable Long id, @RequestBody SysAttendance attendance) {
         try {
@@ -156,9 +144,7 @@ public class AttendanceController {
         }
     }
 
-    /**
-     * 月度考勤汇总
-     */
+    // 月度考勤汇总统计 | MyBatis聚合查询
     @GetMapping("/monthly-summary")
     public Result<List<SysAttendance>> monthlySummary(
             @RequestParam(defaultValue = "#{T(java.time.LocalDate).now().year}") Integer year,

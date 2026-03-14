@@ -16,7 +16,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +37,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
     @Autowired
     private SysDeptMapper sysDeptMapper;
 
+    // 获取首页概览数据（员工数、考勤率等） | MyBatis聚合查询
     @Override
     public StatisticsDTO.OverviewData getOverviewData() {
         StatisticsDTO.OverviewData overview = new StatisticsDTO.OverviewData();
@@ -61,6 +61,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
         return overview;
     }
 
+    // 获取员工分布统计（按部门） | MyBatis分组统计
     @Override
     public List<StatisticsDTO.EmpDistribution> getEmpDistribution() {
         List<StatisticsDTO.EmpDistribution> result = new ArrayList<>();
@@ -80,6 +81,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
         return result;
     }
 
+    // 获取考勤汇总统计 | MyBatis分组统计、日期范围查询、LocalDate循环
     @Override
     public List<StatisticsDTO.AttendanceSummary> getAttendanceSummary(LocalDate startDate, LocalDate endDate) {
         List<StatisticsDTO.AttendanceSummary> result = new ArrayList<>();
@@ -121,6 +123,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
         return result;
     }
 
+    // 获取部门考勤对比数据 | MyBatis分组统计、日期查询
     @Override
     public List<StatisticsDTO.DeptAttendance> getDeptAttendance(String month) {
         List<StatisticsDTO.DeptAttendance> result = new ArrayList<>();
@@ -138,7 +141,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
             Map<String, Object> stats = sysAttendanceMapper.getMonthlyStatsByDept(deptId, month);
 
             if (stats != null) {
-                Number workingDays = (Number) stats.get("working_days");
+                // Number workingDays = (Number) stats.get("working_days");
                 Number expectedCount = (Number) stats.get("expected_count");
                 Number actualCount = (Number) stats.get("actual_count");
 

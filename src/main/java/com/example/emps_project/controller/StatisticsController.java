@@ -24,9 +24,7 @@ public class StatisticsController {
     @Autowired
     private IStatisticsService statisticsService;
 
-    /**
-     * 获取首页概览数据
-     */
+    // 获取首页概览数据（员工数、考勤率等） | MyBatis聚合查询
     @GetMapping("/overview")
     public Result<StatisticsDTO.OverviewData> getOverview() {
         try {
@@ -38,9 +36,7 @@ public class StatisticsController {
         }
     }
 
-    /**
-     * 获取员工分布统计
-     */
+    // 获取员工分布统计（按部门） | MyBatis分组统计
     @GetMapping("/emp-distribution")
     public Result<List<StatisticsDTO.EmpDistribution>> getEmpDistribution() {
         try {
@@ -52,9 +48,7 @@ public class StatisticsController {
         }
     }
 
-    /**
-     * 获取考勤汇总统计
-     */
+    // 获取考勤汇总统计 | DateTimeFormat日期格式化、MyBatis
     @GetMapping("/attendance-summary")
     public Result<List<StatisticsDTO.AttendanceSummary>> getAttendanceSummary(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -71,9 +65,7 @@ public class StatisticsController {
         }
     }
 
-    /**
-     * 获取部门考勤对比
-     */
+    // 获取部门考勤对比数据 | MyBatis分组统计
     @GetMapping("/dept-attendance")
     public Result<List<StatisticsDTO.DeptAttendance>> getDeptAttendance(
             @RequestParam String month) {

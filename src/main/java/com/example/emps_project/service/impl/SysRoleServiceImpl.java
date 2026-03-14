@@ -22,26 +22,31 @@ public class SysRoleServiceImpl implements ISysRoleService {
     @Autowired
     private SysRoleMapper sysRoleMapper;
 
+    // 根据ID查询角色 | MyBatis
     @Override
     public SysRole selectById(Long id) {
         return sysRoleMapper.selectById(id);
     }
 
+    // 根据角色编码查询角色 | MyBatis
     @Override
     public SysRole selectByRoleCode(String roleCode) {
         return sysRoleMapper.selectByRoleCode(roleCode);
     }
 
+    // 查询角色列表 | MyBatis
     @Override
     public List<SysRole> selectList(SysRole sysRole) {
         return sysRoleMapper.selectList(sysRole);
     }
 
+    // 查询所有角色 | MyBatis
     @Override
     public List<SysRole> selectAll() {
         return sysRoleMapper.selectAll();
     }
 
+    // 新增角色 | MyBatis、事务处理
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int insert(SysRole sysRole) {
@@ -55,6 +60,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
         return sysRoleMapper.insert(sysRole);
     }
 
+    // 更新角色 | MyBatis、事务处理
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int update(SysRole sysRole) {
@@ -63,6 +69,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
         return sysRoleMapper.update(sysRole);
     }
 
+    // 删除角色 | MyBatis、事务处理
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int deleteById(Long id) {

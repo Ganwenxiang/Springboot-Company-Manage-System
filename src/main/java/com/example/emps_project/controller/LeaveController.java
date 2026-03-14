@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,9 +27,7 @@ public class LeaveController {
     @Autowired
     private ILeaveService leaveService;
 
-    /**
-     * 查询我的请假申请
-     */
+    // 查询当前用户的请假申请 | Spring Security、MyBatis
     @GetMapping("/my-requests")
     public Result<List<SysLeave>> getMyRequests() {
         try {
@@ -43,9 +40,7 @@ public class LeaveController {
         }
     }
 
-    /**
-     * 提交请假申请
-     */
+    // 提交请假申请 | Spring Security、MyBatis
     @PostMapping
     public Result<Void> submit(@RequestBody SysLeave leave) {
         try {
@@ -61,9 +56,7 @@ public class LeaveController {
         }
     }
 
-    /**
-     * 撤销请假申请
-     */
+    // 撤销请假申请 | MyBatis
     @PutMapping("/{id}/cancel")
     public Result<Void> cancel(@PathVariable Long id) {
         try {
@@ -78,9 +71,7 @@ public class LeaveController {
         }
     }
 
-    /**
-     * 查询待审批列表
-     */
+    // 查询待审批请假列表 | MyBatis
     @GetMapping("/pending")
     public Result<List<SysLeave>> getPending() {
         try {
@@ -92,9 +83,7 @@ public class LeaveController {
         }
     }
 
-    /**
-     * 审批通过
-     */
+    // 审批通过请假申请 | Spring Security、MyBatis
     @PutMapping("/{id}/approve")
     public Result<Void> approve(@PathVariable Long id, @RequestBody Map<String, String> request) {
         try {
@@ -111,9 +100,7 @@ public class LeaveController {
         }
     }
 
-    /**
-     * 审批拒绝
-     */
+    // 审批拒绝请假申请 | Spring Security、MyBatis
     @PutMapping("/{id}/reject")
     public Result<Void> reject(@PathVariable Long id, @RequestBody Map<String, String> request) {
         try {
@@ -130,9 +117,7 @@ public class LeaveController {
         }
     }
 
-    /**
-     * 管理端查询请假记录
-     */
+    // 管理端分页查询请假记录 | PageHelper分页、动态条件查询
     @GetMapping
     public Result<PageInfo<SysLeave>> list(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -161,9 +146,7 @@ public class LeaveController {
         }
     }
 
-    /**
-     * 删除请假申请
-     */
+    // 删除请假申请 | MyBatis
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         try {

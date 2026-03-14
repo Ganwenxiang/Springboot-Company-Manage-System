@@ -1,7 +1,6 @@
 package com.example.emps_project.service.impl;
 
 import com.example.emps_project.common.BusinessException;
-import com.example.emps_project.common.ResultCode;
 import com.example.emps_project.entity.SysUser;
 import com.example.emps_project.mapper.SysUserMapper;
 import com.example.emps_project.service.ISysUserService;
@@ -13,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,21 +25,25 @@ public class SysUserServiceImpl implements ISysUserService {
     @Autowired
     private SysUserMapper sysUserMapper;
 
+    // 根据用户名查询用户 | MyBatis
     @Override
     public SysUser selectByUsername(String username) {
         return sysUserMapper.selectByUsername(username);
     }
 
+    // 根据ID查询用户 | MyBatis
     @Override
     public SysUser selectById(Long id) {
         return sysUserMapper.selectById(id);
     }
 
+    // 查询用户列表 | MyBatis
     @Override
     public List<SysUser> selectList(SysUser sysUser) {
         return sysUserMapper.selectList(sysUser);
     }
 
+    // 新增用户 | MyBatis、Spring Security密码加密、事务处理
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int insert(SysUser sysUser) {
@@ -62,6 +64,7 @@ public class SysUserServiceImpl implements ISysUserService {
         return sysUserMapper.insert(sysUser);
     }
 
+    // 更新用户信息 | MyBatis、事务处理
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int update(SysUser sysUser) {
@@ -72,6 +75,7 @@ public class SysUserServiceImpl implements ISysUserService {
         return sysUserMapper.update(sysUser);
     }
 
+    // 删除用户 | MyBatis、事务处理
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int deleteById(Long id) {

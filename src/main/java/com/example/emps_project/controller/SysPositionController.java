@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 职位管理控制器
@@ -27,9 +25,7 @@ public class SysPositionController {
     @Autowired
     private ISysPositionService sysPositionService;
 
-    /**
-     * 分页查询职位列表
-     */
+    // 分页查询职位列表 | PageHelper分页、动态条件查询
     @GetMapping
     public Result<PageInfo<SysPosition>> list(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -50,9 +46,7 @@ public class SysPositionController {
         }
     }
 
-    /**
-     * 查询所有职位（不分页，用于下拉选择）
-     */
+    // 查询所有职位（下拉选择用） | MyBatis
     @GetMapping("/all")
     public Result<List<SysPosition>> allPositions() {
         try {
@@ -64,9 +58,7 @@ public class SysPositionController {
         }
     }
 
-    /**
-     * 根据ID查询职位
-     */
+    // 根据ID查询职位 | MyBatis
     @GetMapping("/{id}")
     public Result<SysPosition> getById(@PathVariable Long id) {
         try {
@@ -81,9 +73,7 @@ public class SysPositionController {
         }
     }
 
-    /**
-     * 新增职位
-     */
+    // 新增职位 | MyBatis
     @PostMapping
     public Result<Void> add(@RequestBody SysPosition position) {
         try {
@@ -102,9 +92,7 @@ public class SysPositionController {
         }
     }
 
-    /**
-     * 更新职位
-     */
+    // 更新职位 | MyBatis
     @PutMapping
     public Result<Void> update(@RequestBody SysPosition position) {
         try {
@@ -123,9 +111,7 @@ public class SysPositionController {
         }
     }
 
-    /**
-     * 删除职位
-     */
+    // 删除职位 | MyBatis
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         try {
@@ -140,9 +126,7 @@ public class SysPositionController {
         }
     }
 
-    /**
-     * 批量删除职位
-     */
+    // 批量删除职位 | MyBatis批量操作
     @DeleteMapping
     public Result<Void> deleteBatch(@RequestBody List<Long> ids) {
         try {

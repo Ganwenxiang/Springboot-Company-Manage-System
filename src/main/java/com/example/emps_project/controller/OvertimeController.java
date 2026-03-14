@@ -26,9 +26,7 @@ public class OvertimeController {
     @Autowired
     private IOvertimeService overtimeService;
 
-    /**
-     * 查询我的加班记录
-     */
+    // 查询当前用户的加班记录 | Spring Security、MyBatis
     @GetMapping("/my-records")
     public Result<List<SysOvertime>> getMyRecords() {
         try {
@@ -41,9 +39,7 @@ public class OvertimeController {
         }
     }
 
-    /**
-     * 提交加班申请
-     */
+    // 提交加班申请 | Spring Security、MyBatis
     @PostMapping
     public Result<Void> submit(@RequestBody SysOvertime overtime) {
         try {
@@ -59,9 +55,7 @@ public class OvertimeController {
         }
     }
 
-    /**
-     * 查询待审批列表
-     */
+    // 查询待审批加班列表 | MyBatis
     @GetMapping("/pending")
     public Result<List<SysOvertime>> getPending() {
         try {
@@ -73,9 +67,7 @@ public class OvertimeController {
         }
     }
 
-    /**
-     * 审批通过
-     */
+    // 审批通过加班申请 | Spring Security、MyBatis
     @PutMapping("/{id}/approve")
     public Result<Void> approve(@PathVariable Long id) {
         try {
@@ -91,9 +83,7 @@ public class OvertimeController {
         }
     }
 
-    /**
-     * 审批拒绝
-     */
+    // 审批拒绝加班申请 | Spring Security、MyBatis
     @PutMapping("/{id}/reject")
     public Result<Void> reject(@PathVariable Long id) {
         try {
@@ -109,9 +99,7 @@ public class OvertimeController {
         }
     }
 
-    /**
-     * 管理端查询加班记录
-     */
+    // 管理端分页查询加班记录 | PageHelper分页、动态条件查询
     @GetMapping
     public Result<PageInfo<SysOvertime>> list(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -140,9 +128,7 @@ public class OvertimeController {
         }
     }
 
-    /**
-     * 删除加班记录
-     */
+    // 删除加班记录 | MyBatis
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         try {

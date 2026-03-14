@@ -14,10 +14,7 @@ public class SysEmpController {
     @Autowired
     private ISysEmpService sysEmpService;
 
-    /**
-     * 分页查询员工列表
-     * GET /api/employees?pageNum=1&pageSize=10&empName=张&deptId=2
-     */
+    // 分页查询员工列表 | PageHelper分页、Spring MVC参数绑定
     @GetMapping
     public Result<PageInfo<SysEmp>> list(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -28,10 +25,7 @@ public class SysEmpController {
         return Result.success(pageInfo);
     }
 
-    /**
-     * 高级搜索员工（支持多条件联合查询，包含部门名称）
-     * GET /api/employees/search?pageNum=1&pageSize=10&empName=张&jobTitle=工程师&entryDateStart=2023-01-01&entryDateEnd=2023-12-31
-     */
+    // 高级搜索员工（支持多条件联合查询，包含部门名称） | PageHelper分页、MyBatis动态SQL
     @GetMapping("/search")
     public Result<PageInfo<SysEmp>> search(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -42,36 +36,28 @@ public class SysEmpController {
         return Result.success(pageInfo);
     }
 
-    /**
-     * 获取员工详情
-     */
+    // 获取员工详情 | MyBatis
     @GetMapping("/{id}")
     public Result<SysEmp> getById(@PathVariable Long id) {
         SysEmp emp = sysEmpService.getById(id);
         return Result.success(emp);
     }
 
-    /**
-     * 新增员工
-     */
+    // 新增员工 | MyBatis
     @PostMapping
     public Result<Void> add(@RequestBody SysEmp emp) {
         sysEmpService.insertEmp(emp);
         return Result.ok("新增成功");
     }
 
-    /**
-     * 修改员工
-     */
+    // 修改员工信息 | MyBatis
     @PutMapping
     public Result<Void> edit(@RequestBody SysEmp emp) {
         sysEmpService.updateEmp(emp);
         return Result.ok("修改成功");
     }
 
-    /**
-     * 删除员工
-     */
+    // 删除员工 | MyBatis
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         sysEmpService.deleteEmpById(id);

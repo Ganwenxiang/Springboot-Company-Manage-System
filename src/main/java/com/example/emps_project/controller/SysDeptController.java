@@ -22,9 +22,7 @@ public class SysDeptController {
     @Autowired
     private ISysDeptService sysDeptService;
 
-    /**
-     * 获取部门树
-     */
+    // 获取部门树形结构 | 递归查询、MyBatis
     @GetMapping
     public Result<List<SysDept>> getDeptTree() {
         try {
@@ -36,9 +34,7 @@ public class SysDeptController {
         }
     }
 
-    /**
-     * 新增部门
-     */
+    // 新增部门 | MyBatis插入
     @PostMapping
     public Result<Void> addDept(@RequestBody SysDept dept) {
         try {
@@ -50,9 +46,7 @@ public class SysDeptController {
         }
     }
 
-    /**
-     * 更新部门
-     */
+    // 更新部门信息 | MyBatis更新
     @PutMapping
     public Result<Void> updateDept(@RequestBody SysDept dept) {
         try {
@@ -64,9 +58,7 @@ public class SysDeptController {
         }
     }
 
-    /**
-     * 删除部门
-     */
+    // 删除部门 | MyBatis删除
     @DeleteMapping("/{id}")
     public Result<Void> deleteDept(@PathVariable Long id) {
         try {

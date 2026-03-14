@@ -12,7 +12,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -39,9 +38,7 @@ public class SystemController {
 
     // ==================== 用户管理 ====================
 
-    /**
-     * 分页查询用户列表
-     */
+    // 分页查询用户列表 | PageHelper分页、动态条件查询
     @GetMapping("/users")
     public Result<PageInfo<SysUser>> userList(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -71,9 +68,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 根据ID查询用户
-     */
+    // 根据ID查询用户（含角色） | MyBatis
     @GetMapping("/users/{id}")
     public Result<SysUser> getUserById(@PathVariable Long id) {
         try {
@@ -95,9 +90,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 新增用户
-     */
+    // 新增用户（含角色关联） | MyBatis、事务处理
     @PostMapping("/users")
     public Result<Void> addUser(@RequestBody SysUser user) {
         try {
@@ -116,9 +109,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 更新用户
-     */
+    // 更新用户信息（含角色关联） | MyBatis
     @PutMapping("/users")
     public Result<Void> updateUser(@RequestBody SysUser user) {
         try {
@@ -137,9 +128,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 删除用户
-     */
+    // 删除用户 | MyBatis
     @DeleteMapping("/users/{id}")
     public Result<Void> deleteUser(@PathVariable Long id) {
         try {
@@ -154,9 +143,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 重置用户密码
-     */
+    // 重置用户密码为默认值 | Spring Security密码加密
     @PutMapping("/users/{id}/reset-pwd")
     public Result<Void> resetPassword(@PathVariable Long id) {
         try {
@@ -173,9 +160,7 @@ public class SystemController {
 
     // ==================== 角色管理 ====================
 
-    /**
-     * 查询角色列表
-     */
+    // 分页查询角色列表 | PageHelper分页、动态条件查询
     @GetMapping("/roles")
     public Result<Map<String, Object>> roleList(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -200,9 +185,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 根据ID查询角色
-     */
+    // 根据ID查询角色（含菜单权限） | MyBatis
     @GetMapping("/roles/{id}")
     public Result<Map<String, Object>> getRoleById(@PathVariable Long id) {
         try {
@@ -226,9 +209,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 新增角色
-     */
+    // 新增角色（含菜单权限关联） | MyBatis、事务处理
     @PostMapping("/roles")
     public Result<Void> addRole(@RequestBody SysRole role) {
         try {
@@ -247,9 +228,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 更新角色
-     */
+    // 更新角色（含菜单权限关联） | MyBatis
     @PutMapping("/roles")
     public Result<Void> updateRole(@RequestBody SysRole role) {
         try {
@@ -268,9 +247,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 删除角色
-     */
+    // 删除角色 | MyBatis
     @DeleteMapping("/roles/{id}")
     public Result<Void> deleteRole(@PathVariable Long id) {
         try {
@@ -287,9 +264,7 @@ public class SystemController {
 
     // ==================== 菜单管理 ====================
 
-    /**
-     * 查询当前用户的菜单树
-     */
+    // 查询当前用户的菜单树 | Spring Security、递归查询
     @GetMapping("/menus")
     public Result<List<?>> menuTree() {
         try {
@@ -302,9 +277,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 查询所有菜单（管理端）
-     */
+    // 查询所有菜单（管理端） | 递归查询
     @GetMapping("/menus/all")
     public Result<List<?>> allMenus() {
         try {
@@ -316,9 +289,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 根据ID查询菜单
-     */
+    // 根据ID查询菜单 | MyBatis
     @GetMapping("/menus/{id}")
     public Result<SysMenu> getMenuById(@PathVariable Long id) {
         try {
@@ -333,9 +304,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 新增菜单
-     */
+    // 新增菜单 | MyBatis
     @PostMapping("/menus")
     public Result<Void> addMenu(@RequestBody SysMenu menu) {
         try {
@@ -350,9 +319,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 更新菜单
-     */
+    // 更新菜单 | MyBatis
     @PutMapping("/menus")
     public Result<Void> updateMenu(@RequestBody SysMenu menu) {
         try {
@@ -367,9 +334,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 删除菜单
-     */
+    // 删除菜单 | MyBatis
     @DeleteMapping("/menus/{id}")
     public Result<Void> deleteMenu(@PathVariable Long id) {
         try {
@@ -384,9 +349,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 查询角色的菜单权限
-     */
+    // 查询角色的菜单权限 | MyBatis
     @GetMapping("/role/{roleId}/menus")
     public Result<List<Long>> getRoleMenus(@PathVariable Long roleId) {
         try {
@@ -398,9 +361,7 @@ public class SystemController {
         }
     }
 
-    /**
-     * 分配角色菜单权限
-     */
+    // 分配角色菜单权限 | MyBatis、事务处理
     @PutMapping("/role/{roleId}/menus")
     public Result<Void> assignRoleMenus(@PathVariable Long roleId, @RequestBody List<Long> menuIds) {
         try {

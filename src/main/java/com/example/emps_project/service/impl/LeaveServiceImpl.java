@@ -21,26 +21,31 @@ public class LeaveServiceImpl implements ILeaveService {
     @Autowired
     private SysLeaveMapper sysLeaveMapper;
 
+    // 根据ID查询请假申请 | MyBatis
     @Override
     public SysLeave selectById(Long id) {
         return sysLeaveMapper.selectById(id);
     }
 
+    // 查询请假列表 | MyBatis
     @Override
     public List<SysLeave> selectList(SysLeave sysLeave) {
         return sysLeaveMapper.selectList(sysLeave);
     }
 
+    // 查询我的请假申请 | MyBatis
     @Override
     public List<SysLeave> selectMyRequests(Long empId) {
         return sysLeaveMapper.selectMyRequests(empId);
     }
 
+    // 查询待审批请假列表 | MyBatis
     @Override
     public List<SysLeave> selectPending() {
         return sysLeaveMapper.selectPending();
     }
 
+    // 提交请假申请 | MyBatis、事务处理
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int submit(SysLeave sysLeave) {
@@ -49,6 +54,7 @@ public class LeaveServiceImpl implements ILeaveService {
         return sysLeaveMapper.insert(sysLeave);
     }
 
+    // 撤销请假申请 | MyBatis、事务处理
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int cancel(Long id) {
@@ -66,6 +72,7 @@ public class LeaveServiceImpl implements ILeaveService {
         return sysLeaveMapper.update(leave);
     }
 
+    // 审批通过请假申请 | MyBatis、事务处理
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int approve(Long id, Long approverId, String remark) {
@@ -82,6 +89,7 @@ public class LeaveServiceImpl implements ILeaveService {
         return sysLeaveMapper.approve(id, approverId, 1, remark);
     }
 
+    // 审批拒绝请假申请 | MyBatis、事务处理
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int reject(Long id, Long approverId, String remark) {

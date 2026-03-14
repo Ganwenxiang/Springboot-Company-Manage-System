@@ -4,26 +4,18 @@ import com.example.emps_project.entity.SysEmp;
 import com.github.pagehelper.PageInfo;
 
 public interface ISysEmpService {
-    /**
-     * 分页查询
-     * @param pageNum 当前页
-     * @param pageSize 每页条数
-     * @param emp 查询条件
-     * @return PageInfo (包含总条数、总页数、当前页数据等)
-     */
+    // 分页查询员工信息 | PageHelper分页、MyBatis动态SQL
     PageInfo<SysEmp> selectEmpPage(Integer pageNum, Integer pageSize, SysEmp emp);
 
+// 新增员工 | MyBatis
     int insertEmp(SysEmp emp);
+    // 更新员工信息 | MyBatis
     int updateEmp(SysEmp emp);
+    // 删除员工 | MyBatis
     int deleteEmpById(Long id);
+    // 根据ID查询员工 | MyBatis
     SysEmp getById(Long id);
 
-    /**
-     * 高级搜索员工（支持多条件联合查询，包含部门名称）
-     * @param pageNum 当前页
-     * @param pageSize 每页条数
-     * @param emp 搜索条件对象
-     * @return 分页结果（包含部门名称）
-     */
+    // 高级搜索员工（支持多条件联合查询，包含部门名称） | PageHelper分页、MyBatis关联查询
     PageInfo<SysEmp> searchEmployees(Integer pageNum, Integer pageSize, SysEmp emp);
 }

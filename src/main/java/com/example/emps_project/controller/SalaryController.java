@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,9 +26,7 @@ public class SalaryController {
     @Autowired
     private ISalaryService salaryService;
 
-    /**
-     * 查询我的薪资记录
-     */
+    // 查询当前用户的薪资记录 | Spring Security、MyBatis
     @GetMapping("/my-salaries")
     public Result<List<SysSalary>> getMySalaries() {
         try {
@@ -42,9 +39,7 @@ public class SalaryController {
         }
     }
 
-    /**
-     * 生成月度薪资
-     */
+    // 生成月度薪资（考勤、加班、请假综合计算） | MyBatis聚合计算
     @PostMapping("/calculate")
     public Result<Void> calculate(@RequestBody Map<String, String> request) {
         try {
@@ -61,9 +56,7 @@ public class SalaryController {
         }
     }
 
-    /**
-     * 管理端查询薪资记录
-     */
+    // 管理端分页查询薪资记录 | PageHelper分页、动态条件查询
     @GetMapping
     public Result<PageInfo<SysSalary>> list(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -88,9 +81,7 @@ public class SalaryController {
         }
     }
 
-    /**
-     * 薪资详情
-     */
+    // 查询薪资详情 | MyBatis
     @GetMapping("/{id}")
     public Result<SysSalary> getById(@PathVariable Long id) {
         try {
@@ -105,9 +96,7 @@ public class SalaryController {
         }
     }
 
-    /**
-     * 调整薪资
-     */
+    // 调整薪资 | MyBatis
     @PutMapping("/{id}")
     public Result<Void> update(@PathVariable Long id, @RequestBody SysSalary salary) {
         try {
@@ -123,9 +112,7 @@ public class SalaryController {
         }
     }
 
-    /**
-     * 标记已发放
-     */
+    // 标记薪资已发放 | MyBatis
     @PutMapping("/{id}/pay")
     public Result<Void> markAsPaid(@PathVariable Long id) {
         try {
@@ -140,9 +127,7 @@ public class SalaryController {
         }
     }
 
-    /**
-     * 删除薪资记录
-     */
+    // 删除薪资记录 | MyBatis
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         try {
@@ -157,9 +142,7 @@ public class SalaryController {
         }
     }
 
-    /**
-     * 薪资汇总统计
-     */
+    // 薪资汇总统计 | MyBatis聚合查询
     @GetMapping("/summary")
     public Result<Map<String, Object>> getSummary(@RequestParam String salaryMonth) {
         try {

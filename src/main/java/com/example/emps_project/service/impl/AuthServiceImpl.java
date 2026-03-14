@@ -2,7 +2,6 @@ package com.example.emps_project.service.impl;
 
 import com.example.emps_project.common.BusinessException;
 import com.example.emps_project.common.ResultCode;
-import com.example.emps_project.entity.SysMenu;
 import com.example.emps_project.entity.SysUser;
 import com.example.emps_project.security.JwtUtil;
 import com.example.emps_project.security.LoginUser;
@@ -32,6 +31,7 @@ public class AuthServiceImpl implements IAuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    // 用户登录验证，返回JWT Token | Spring Security密码验证、JWT生成
     @Override
     public String login(String username, String password) {
         // 查询用户
@@ -58,6 +58,7 @@ public class AuthServiceImpl implements IAuthService {
         return token;
     }
 
+    // 用户登出，清除ThreadLocal | ThreadLocal
     @Override
     public void logout() {
         // 清除ThreadLocal中的用户信息
@@ -65,6 +66,7 @@ public class AuthServiceImpl implements IAuthService {
         log.info("用户登出成功");
     }
 
+    // 获取当前登录用户 | SecurityContext、MyBatis
     @Override
     public SysUser getCurrentUser() {
         Long userId = LoginUser.getUserId();
@@ -74,6 +76,7 @@ public class AuthServiceImpl implements IAuthService {
         return sysUserService.selectById(userId);
     }
 
+    // 根据Token解析获取用户信息 | JWT解析、MyBatis
     @Override
     public SysUser getUserByToken(String token) {
         try {
@@ -85,16 +88,19 @@ public class AuthServiceImpl implements IAuthService {
         }
     }
 
+    // 获取用户菜单树 | MyBatis关联查询
     @Override
     public List<?> getMenuTree(Long userId) {
         return sysMenuService.selectMenuTreeByUserId(userId);
     }
 
+    // 获取用户权限列表 | MyBatis关联查询
     @Override
     public List<String> getPermissions(Long userId) {
         return sysMenuService.selectPermissionsByUserId(userId);
     }
 
+    // 刷新JWT Token | JWT验证与生成
     @Override
     public String refreshToken(String token) {
         if (!jwtUtil.validateToken(token)) {

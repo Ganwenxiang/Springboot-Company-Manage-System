@@ -2,8 +2,7 @@ package com.example.emps_project.dto;
 
 import lombok.Data;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
+
 
 /**
  * 统计数据DTO

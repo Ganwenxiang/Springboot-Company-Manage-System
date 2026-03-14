@@ -4,9 +4,7 @@ import com.example.emps_project.common.BusinessException;
 import com.example.emps_project.entity.SysEmp;
 import com.example.emps_project.entity.SysPosition;
 import com.example.emps_project.entity.SysSalary;
-import com.example.emps_project.mapper.SysAttendanceMapper;
 import com.example.emps_project.mapper.SysEmpMapper;
-import com.example.emps_project.mapper.SysOvertimeMapper;
 import com.example.emps_project.mapper.SysPositionMapper;
 import com.example.emps_project.mapper.SysSalaryMapper;
 import com.example.emps_project.service.ISalaryService;
@@ -37,11 +35,11 @@ public class SalaryServiceImpl implements ISalaryService {
     @Autowired
     private SysPositionMapper sysPositionMapper;
 
-    @Autowired
-    private SysAttendanceMapper sysAttendanceMapper;
+    // @Autowired
+    // private SysAttendanceMapper sysAttendanceMapper;
 
-    @Autowired
-    private SysOvertimeMapper sysOvertimeMapper;
+    // @Autowired
+    // private SysOvertimeMapper sysOvertimeMapper;
 
     /** 社保缴纳比例 */
     private static final BigDecimal SOCIAL_SECURITY_RATE = new BigDecimal("0.08");
@@ -49,21 +47,25 @@ public class SalaryServiceImpl implements ISalaryService {
     /** 个税起征点 */
     private static final BigDecimal TAX_THRESHOLD = new BigDecimal("5000");
 
+    // 根据ID查询薪资记录 | MyBatis
     @Override
     public SysSalary selectById(Long id) {
         return sysSalaryMapper.selectById(id);
     }
 
+    // 查询薪资列表 | MyBatis
     @Override
     public List<SysSalary> selectList(SysSalary sysSalary) {
         return sysSalaryMapper.selectList(sysSalary);
     }
 
+    // 查询我的薪资记录 | MyBatis
     @Override
     public List<SysSalary> selectMySalaries(Long empId) {
         return sysSalaryMapper.selectMySalaries(empId);
     }
 
+    // 生成月度薪资（考勤、加班、请假综合计算） | MyBatis聚合计算、BigDecimal运算、事务处理
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void calculateMonthlySalary(String salaryMonth) {

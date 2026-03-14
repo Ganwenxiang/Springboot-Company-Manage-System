@@ -15,6 +15,7 @@ public class SysEmpServiceImpl implements ISysEmpService {
     @Autowired
     private SysEmpMapper sysEmpMapper;
 
+    // 分页查询员工信息 | PageHelper分页、MyBatis
     @Override
     public PageInfo<SysEmp> selectEmpPage(Integer pageNum, Integer pageSize, SysEmp emp) {
         // 1. 设置分页参数 (必须在查询方法调用的紧挨着的一行)
@@ -27,26 +28,31 @@ public class SysEmpServiceImpl implements ISysEmpService {
         return new PageInfo<>(list);
     }
 
+    // 新增员工 | MyBatis
     @Override
     public int insertEmp(SysEmp emp) {
         return sysEmpMapper.insertEmp(emp);
     }
 
+    // 更新员工信息 | MyBatis
     @Override
     public int updateEmp(SysEmp emp) {
         return sysEmpMapper.updateEmp(emp);
     }
 
+    // 删除员工 | MyBatis
     @Override
     public int deleteEmpById(Long id) {
         return sysEmpMapper.deleteEmpById(id);
     }
 
+    // 根据ID查询员工 | MyBatis
     @Override
     public SysEmp getById(Long id) {
         return sysEmpMapper.selectEmpById(id);
     }
 
+    // 高级搜索员工（支持多条件联合查询，包含部门名称） | PageHelper分页、MyBatis关联查询
     @Override
     public PageInfo<SysEmp> searchEmployees(Integer pageNum, Integer pageSize, SysEmp emp) {
         // 1. 设置分页参数

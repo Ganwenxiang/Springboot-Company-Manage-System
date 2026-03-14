@@ -40,9 +40,7 @@ public class AuthController {
     @Autowired
     private ISysRoleService sysRoleService;
 
-    /**
-     * 用户登录
-     */
+    // 用户登录验证 | Spring MVC、Spring Security JWT认证
     @PostMapping("/login")
     public Result<Map<String, Object>> login(@RequestBody LoginDTO loginDTO, HttpServletRequest request) {
         // 参数校验
@@ -73,9 +71,7 @@ public class AuthController {
         }
     }
 
-    /**
-     * 用户登出
-     */
+    // 用户登出 | 自定义RequireLogin注解、Spring Security
     @PostMapping("/logout")
     @RequireLogin
     public Result<Void> logout() {
@@ -83,9 +79,7 @@ public class AuthController {
         return Result.ok("登出成功");
     }
 
-    /**
-     * 获取当前用户信息
-     */
+    // 获取当前用户信息（角色、权限、菜单树） | Spring Security、Stream API
     @GetMapping("/info")
     @RequireLogin
     public Result<UserInfoVO> getUserInfo() {
@@ -129,9 +123,7 @@ public class AuthController {
         }
     }
 
-    /**
-     * 修改密码
-     */
+    // 修改用户密码 | Spring Security密码加密
     @PutMapping("/password")
     @RequireLogin
     public Result<Void> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
@@ -160,9 +152,7 @@ public class AuthController {
         }
     }
 
-    /**
-     * 刷新Token
-     */
+    // 刷新JWT令牌 | Spring Security JWT
     @PostMapping("/refresh")
     @RequireLogin
     public Result<Map<String, String>> refreshToken(@RequestHeader("Authorization") String authHeader) {
@@ -180,9 +170,7 @@ public class AuthController {
         }
     }
 
-    /**
-     * 获取客户端IP
-     */
+    // 获取客户端真实IP（支持代理转发） | HttpServletRequest、Header解析
     private String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {

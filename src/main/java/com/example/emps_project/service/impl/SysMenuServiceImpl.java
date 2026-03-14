@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 菜单服务实现类
@@ -23,38 +22,45 @@ public class SysMenuServiceImpl implements ISysMenuService {
     @Autowired
     private SysMenuMapper sysMenuMapper;
 
+    // 根据ID查询菜单 | MyBatis
     @Override
     public SysMenu selectById(Long id) {
         return sysMenuMapper.selectById(id);
     }
 
+    // 查询菜单列表 | MyBatis
     @Override
     public List<SysMenu> selectList(SysMenu sysMenu) {
         return sysMenuMapper.selectList(sysMenu);
     }
 
+    // 查询所有菜单 | MyBatis
     @Override
     public List<SysMenu> selectAll() {
         return sysMenuMapper.selectAll();
     }
 
+    // 查询菜单树 | 递归查询
     @Override
     public List<SysMenu> selectMenuTree() {
         List<SysMenu> menuList = sysMenuMapper.selectAll();
         return buildMenuTree(menuList);
     }
 
+    // 查询用户的菜单树（含权限过滤） | 递归查询、MyBatis关联查询
     @Override
     public List<SysMenu> selectMenuTreeByUserId(Long userId) {
         List<SysMenu> menuList = sysMenuMapper.selectMenuTreeByUserId(userId);
         return buildMenuTree(menuList);
     }
 
+    // 查询用户的权限列表 | MyBatis关联查询
     @Override
     public List<String> selectPermissionsByUserId(Long userId) {
         return sysMenuMapper.selectPermissionsByUserId(userId);
     }
 
+    // 新增菜单 | MyBatis、事务处理
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int insert(SysMenu sysMenu) {
@@ -68,6 +74,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
         return sysMenuMapper.insert(sysMenu);
     }
 
+    // 更新菜单 | MyBatis、事务处理
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int update(SysMenu sysMenu) {

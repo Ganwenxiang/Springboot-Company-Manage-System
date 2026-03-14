@@ -6,26 +6,15 @@ import java.util.List;
 
 public interface ISysDeptService {
 
-    /**
-     * 获取部门树形结构
-     */
+    // 获取部门树形结构 | 递归查询、MyBatis
     List<SysDept> getDeptTree();
 
-    /**
-     * @param dept
-     * @return 新增部门
-     */
+    // 新增部门 | MyBatis
     int insertDept(SysDept dept);
 
-    /**
-     * @param dept
-     * @return 更新部门
-     */
+    // 更新部门 | MyBatis
     int updateDept(SysDept dept);
 
-    /**
-     * @param id
-     * @return 根据id删除部门
-     */
+    // 根据id删除部门 | MyBatis
     int deleteDeptById(Long id);
 }

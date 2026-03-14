@@ -32,26 +32,31 @@ public class AttendanceServiceImpl implements IAttendanceService {
     /** 下班时间 */
     private static final LocalTime WORK_END_TIME = LocalTime.of(18, 0);
 
+    // 根据ID查询考勤记录 | MyBatis
     @Override
     public SysAttendance selectById(Long id) {
         return sysAttendanceMapper.selectById(id);
     }
 
+    // 查询考勤列表 | MyBatis
     @Override
     public List<SysAttendance> selectList(SysAttendance sysAttendance) {
         return sysAttendanceMapper.selectList(sysAttendance);
     }
 
+    // 查询员工今日考勤记录 | MyBatis
     @Override
     public SysAttendance selectTodayByEmpId(Long empId) {
         return sysAttendanceMapper.selectTodayByEmpId(empId);
     }
 
+    // 查询员工月度考勤记录 | MyBatis
     @Override
     public List<SysAttendance> selectMonthlyByEmpId(Long empId, Integer year, Integer month) {
         return sysAttendanceMapper.selectMonthlyByEmpId(empId, year, month);
     }
 
+    // 员工签到打卡 | MyBatis、LocalDateTime
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void checkIn(Long empId, String location) {
@@ -90,6 +95,7 @@ public class AttendanceServiceImpl implements IAttendanceService {
         log.info("员工签到成功: empId={}, time={}, status={}", empId, now, status);
     }
 
+    // 员工签退打卡 | MyBatis、ChronoUnit计算工时
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void checkOut(Long empId, String location) {
