@@ -3,6 +3,39 @@
 -- =====================================================
 
 -- =====================================================
+-- 0. 测试用户账号（各角色账号）
+-- =====================================================
+-- 密码说明：manager123 和 employee123，使用 SHA-256 加密
+INSERT INTO `sys_user` (`username`, `password`, `nickname`, `status`) VALUES
+('manager', 'LGSJLNiSCK2PjrTEOqUVQmfEZnTPbbweeA2CywWMuhY=', '部门主管', 1),
+('employee', 'jhMUjhDkGdKPwiey93aoI7NiZcO3kQ0aLb/IxQdKCo0=', '普通员工', 1)
+ON DUPLICATE KEY UPDATE password=VALUES(password);
+
+-- 为 manager 用户分配部门主管角色
+INSERT INTO `sys_user_role` (`user_id`, `role_id`)
+SELECT u.id, r.id FROM `sys_user` u, `sys_role` r
+WHERE u.username = 'manager' AND r.role_code = 'manager'
+ON DUPLICATE KEY UPDATE user_id=VALUES(user_id);
+
+-- 为 employee 用户分配普通员工角色
+INSERT INTO `sys_user_role` (`user_id`, `role_id`)
+SELECT u.id, r.id FROM `sys_user` u, `sys_role` r
+WHERE u.username = 'employee' AND r.role_code = 'employee'
+ON DUPLICATE KEY UPDATE user_id=VALUES(user_id);
+
+-- 为 manager 角色分配部分菜单权限（员工管理、考勤管理、请假管理、加班管理）
+INSERT IGNORE INTO `sys_role_menu` (`role_id`, `menu_id`)
+SELECT r.id, m.id
+FROM (SELECT id FROM sys_role WHERE role_code = 'manager') AS r
+CROSS JOIN (SELECT id FROM sys_menu WHERE path IN ('/employee', '/attendance', '/leave', '/overtime')) AS m;
+
+-- 为 employee 角色分配基本菜单权限（考勤管理、请假管理、加班管理）
+INSERT IGNORE INTO `sys_role_menu` (`role_id`, `menu_id`)
+SELECT r.id, m.id
+FROM (SELECT id FROM sys_role WHERE role_code = 'employee') AS r
+CROSS JOIN (SELECT id FROM sys_menu WHERE path IN ('/attendance', '/leave', '/overtime')) AS m;
+
+-- =====================================================
 -- 1. 部门数据
 -- =====================================================
 INSERT INTO `sys_dept` (`parent_id`, `dept_name`, `order_num`, `status`) VALUES

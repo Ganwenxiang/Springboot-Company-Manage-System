@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 认证授权控制器
@@ -101,6 +100,7 @@ public class AuthController {
 //                    .map(SysRole::getRoleCode)
 //                    .collect(Collectors.toList());
 
+            //暂存，用的时候再取
             List<String> roleCodes= new ArrayList<>();
             for ( SysRole role : roles) {
                 roleCodes.add(role.getRoleCode());

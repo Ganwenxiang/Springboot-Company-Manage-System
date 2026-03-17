@@ -6,6 +6,7 @@ com\example\emps_project\entity\SysRoleMenu.class
 com\example\emps_project\service\ISysRoleService.class
 com\example\emps_project\security\PasswordEncoder.class
 com\example\emps_project\EmpsProjectApplication.class
+com\example\emps_project\dto\UpdateProfileDTO.class
 com\example\emps_project\service\impl\SysRoleServiceImpl.class
 com\example\emps_project\entity\SysEmp.class
 com\example\emps_project\entity\SysOvertime.class
