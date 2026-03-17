@@ -19,7 +19,11 @@
       "Bash(cmd:*)",
       "Bash(mvnw.cmd spring-boot:run:*)",
       "Bash(./mvnw.cmd spring-boot:run:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(git add src/main/java/com/example/emps_project/controller/ src/main/java/com/example/emps_project/service/ src/main/java/com/example/emps_project/mapper/ src/main/java/com/example/emps_project/dto/StatisticsDTO.java src/main/java/com/example/emps_project/entity/SysEmp.java)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: 为Controller、Service、Mapper层方法添加注释\n\n- 为所有Controller方法添加统一格式注释：// 方法用处 | 使用的技术\n- 为所有Service接口及实现类方法添加注释\n- 为所有Mapper接口方法添加注释\n- 涉及47个Java文件，覆盖员工管理、考勤、请假、加班、薪资、系统管理等模块\n- 注释内容简明扼要，便于理解代码功能和技术实现\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

@@ -16,7 +16,7 @@
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
-    <sql id="Base_Column_List">
+    <sql id="Base_Column_List">#  定义数据库所有字段名，省的重复调用，一般项目禁止 Select *
         id, emp_id, username, password, nickname, avatar, status,
         last_login_time, last_login_ip, create_time, update_time
     </sql>

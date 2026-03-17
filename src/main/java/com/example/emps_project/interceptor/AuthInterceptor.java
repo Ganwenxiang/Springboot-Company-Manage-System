@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Slf4j
 @Component
+//功能为拦截请求并验证接口
 public class AuthInterceptor implements HandlerInterceptor {
 
     @Autowired
@@ -86,6 +87,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     }
 
     @Override
+    //执行完业务代码后自动清除，避免线程污染
     public void afterCompletion(HttpServletRequest request,
                                HttpServletResponse response,
                                Object handler,

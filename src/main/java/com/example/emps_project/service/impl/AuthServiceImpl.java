@@ -34,7 +34,7 @@ public class AuthServiceImpl implements IAuthService {
     // 用户登录验证，返回JWT Token | Spring Security密码验证、JWT生成
     @Override
     public String login(String username, String password) {
-        // 查询用户
+        // 查询用户  返回该用户名对应的所有字段，包括后面要用到的Status字段
         SysUser user = sysUserService.selectByUsername(username);
         if (user == null) {
             throw new BusinessException(ResultCode.UNAUTHORIZED, "用户名或密码错误");
@@ -52,6 +52,11 @@ public class AuthServiceImpl implements IAuthService {
 
         // 生成Token
         String token = jwtUtil.generateToken(user.getId(), user.getUsername());
+
+        // 将用户信息存入 ThreadLocal，供后续获取 userId 使用
+        LoginUser.setUserId(user.getId());
+        LoginUser.setUsername(user.getUsername());
+        LoginUser.setToken(token);
 
         log.info("用户登录成功: username={}, userId={}", username, user.getId());
 
