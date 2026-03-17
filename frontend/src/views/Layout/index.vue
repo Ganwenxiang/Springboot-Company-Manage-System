@@ -93,6 +93,44 @@
         </router-view>
       </el-main>
     </el-container>
+
+    <!-- 个人信息弹窗 -->
+    <el-dialog v-model="profileDialogVisible" title="个人信息" width="500px">
+      <el-form :model="profileForm" label-width="80px">
+        <el-form-item label="用户名">
+          <el-input v-model="userStore.username" disabled />
+        </el-form-item>
+        <el-form-item label="昵称">
+          <el-input v-model="profileForm.nickname" placeholder="请输入昵称" />
+        </el-form-item>
+        <el-form-item label="头像">
+          <el-input v-model="profileForm.avatar" placeholder="请输入头像URL" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="profileDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleUpdateProfile" :loading="profileLoading">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 修改密码弹窗 -->
+    <el-dialog v-model="passwordDialogVisible" title="修改密码" width="500px">
+      <el-form :model="passwordForm" label-width="100px" :rules="passwordRules" ref="passwordFormRef">
+        <el-form-item label="旧密码" prop="oldPassword">
+          <el-input v-model="passwordForm.oldPassword" type="password" placeholder="请输入旧密码" show-password />
+        </el-form-item>
+        <el-form-item label="新密码" prop="newPassword">
+          <el-input v-model="passwordForm.newPassword" type="password" placeholder="请输入新密码" show-password />
+        </el-form-item>
+        <el-form-item label="确认密码" prop="confirmPassword">
+          <el-input v-model="passwordForm.confirmPassword" type="password" placeholder="请再次输入新密码" show-password />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="passwordDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleChangePassword" :loading="passwordLoading">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -102,12 +140,53 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { UserFilled, User, Lock, SwitchButton } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import { changePassword, updateProfile } from '@/api/auth'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
 const isCollapse = ref(false)
+
+// 个人信息弹窗
+const profileDialogVisible = ref(false)
+const profileLoading = ref(false)
+const profileForm = ref({
+  nickname: '',
+  avatar: ''
+})
+
+// 修改密码弹窗
+const passwordDialogVisible = ref(false)
+const passwordLoading = ref(false)
+const passwordFormRef = ref(null)
+const passwordForm = ref({
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+// 密码校验规则
+const passwordRules = {
+  oldPassword: [{ required: true, message: '请输入旧密码', trigger: 'blur' }],
+  newPassword: [
+    { required: true, message: '请输入新密码', trigger: 'blur' },
+    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, message: '请再次输入新密码', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== passwordForm.value.newPassword) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ]
+}
 
 // 当前激活的菜单
 const activeMenu = computed(() => {
@@ -157,15 +236,79 @@ const handleMenuClick = (item) => {
 const handleCommand = (command) => {
   switch (command) {
     case 'profile':
-      ElMessage.info('个人信息功能开发中')
+      openProfileDialog()
       break
     case 'password':
-      ElMessage.info('修改密码功能开发中')
+      openPasswordDialog()
       break
     case 'logout':
       handleLogout()
       break
   }
+}
+
+// 打开个人信息弹窗
+const openProfileDialog = () => {
+  profileForm.value = {
+    nickname: userStore.nickname || '',
+    avatar: userStore.avatar || ''
+  }
+  profileDialogVisible.value = true
+}
+
+// 更新个人信息
+const handleUpdateProfile = async () => {
+  profileLoading.value = true
+  try {
+    await updateProfile(profileForm.value)
+    // 更新 store 中的用户信息
+    userStore.userInfo = {
+      ...userStore.userInfo,
+      nickname: profileForm.value.nickname,
+      avatar: profileForm.value.avatar
+    }
+    // 同步更新 localStorage
+    localStorage.setItem('userInfo', JSON.stringify(userStore.userInfo))
+    ElMessage.success('个人信息更新成功')
+    profileDialogVisible.value = false
+  } catch (error) {
+    ElMessage.error(error.message || '更新失败')
+  } finally {
+    profileLoading.value = false
+  }
+}
+
+// 打开修改密码弹窗
+const openPasswordDialog = () => {
+  passwordForm.value = {
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+  passwordDialogVisible.value = true
+}
+
+// 修改密码
+const handleChangePassword = async () => {
+  if (!passwordFormRef.value) return
+
+  await passwordFormRef.value.validate(async (valid) => {
+    if (!valid) return
+
+    passwordLoading.value = true
+    try {
+      await changePassword(passwordForm.value)
+      ElMessage.success('密码修改成功，请重新登录')
+      passwordDialogVisible.value = false
+      // 清除登录状态，跳转到登录页
+      await userStore.logout()
+      router.push('/login')
+    } catch (error) {
+      ElMessage.error(error.message || '修改失败')
+    } finally {
+      passwordLoading.value = false
+    }
+  })
 }
 
 // 退出登录

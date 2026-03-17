@@ -4,6 +4,7 @@ import com.example.emps_project.annotation.RequireLogin;
 import com.example.emps_project.common.Result;
 import com.example.emps_project.dto.ChangePasswordDTO;
 import com.example.emps_project.dto.LoginDTO;
+import com.example.emps_project.dto.UpdateProfileDTO;
 import com.example.emps_project.dto.UserInfoVO;
 import com.example.emps_project.entity.SysRole;
 import com.example.emps_project.entity.SysUser;
@@ -18,6 +19,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,9 +86,10 @@ public class AuthController {
     @RequireLogin
     public Result<UserInfoVO> getUserInfo() {
         try {
+            //用户成功登录后，系统就存入了用户的id和Token
             Long userId = LoginUser.getUserId();
 
-            // 获取用户信息
+            // 获取用户信息，每次都要验证
             SysUser user = sysUserService.selectById(userId);
             if (user == null) {
                 return Result.error("用户不存在");
@@ -94,9 +97,14 @@ public class AuthController {
 
             // 获取用户角色
             List<SysRole> roles = sysRoleService.selectRolesByUserId(userId);
-            List<String> roleCodes = roles.stream()
-                    .map(SysRole::getRoleCode)
-                    .collect(Collectors.toList());
+//            List<String> roleCodes = roles.stream()
+//                    .map(SysRole::getRoleCode)
+//                    .collect(Collectors.toList());
+
+            List<String> roleCodes= new ArrayList<>();
+            for ( SysRole role : roles) {
+                roleCodes.add(role.getRoleCode());
+            }
 
             // 获取用户权限
             List<String> permissions = authService.getPermissions(userId);
@@ -120,6 +128,30 @@ public class AuthController {
         } catch (Exception e) {
             log.error("获取用户信息失败: {}", e.getMessage());
             return Result.error("获取用户信息失败");
+        }
+    }
+
+    // 更新个人信息 | MyBatis更新
+    @PutMapping("/profile")
+    @RequireLogin
+    public Result<Void> updateProfile(@RequestBody UpdateProfileDTO updateProfileDTO) {
+        try {
+            Long userId = LoginUser.getUserId();
+
+            SysUser sysUser = new SysUser();
+            sysUser.setId(userId);
+            sysUser.setNickname(updateProfileDTO.getNickname());
+            sysUser.setAvatar(updateProfileDTO.getAvatar());
+
+            int result = sysUserService.update(sysUser);
+            if (result > 0) {
+                return Result.ok("个人信息更新成功");
+            } else {
+                return Result.error("个人信息更新失败");
+            }
+        } catch (Exception e) {
+            log.error("更新个人信息失败: {}", e.getMessage());
+            return Result.error("更新个人信息失败");
         }
     }
 

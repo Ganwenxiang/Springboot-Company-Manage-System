@@ -52,9 +52,23 @@
 }
 ```
 
-##知识点
-### 1、使用spl id 标签可以定义需要查全整个数据表的字段，mybaties的XML通过refid进行调用，避免重复书写数据表字段
-### 2、ThreafLocal的使用
+## 知识点
+
+### 1. MyBatis SQL 标签复用
+使用 `<sql id="xxx">` 定义可复用的 SQL 片段，通过 `<include refid="xxx"/>` 引用，避免重复书写字段。
+
+```xml
+<sql id="Base_Column_List">id, username, password, status</sql>
+<select id="selectById">SELECT <include refid="Base_Column_List"/> FROM sys_user</select>
+```
+
+### 2. ThreadLocal 用户上下文
+每个线程独立存储变量，适合存储当前请求的用户信息。请求结束后必须调用 `remove()` 清理，防止内存泄漏。
+
+### 3. 拦截器生命周期
+- `preHandle()`：请求前执行，返回 true 放行，false 拦截
+- `postHandle()`：请求处理后执行
+- `afterCompletion()`：请求结束后执行（无论成功或异常），适合资源清理
 
 ---
 
@@ -93,6 +107,31 @@
   }
 }
 ```
+## 知识点
+
+### SQL JOIN 连接类型
+
+| 连接类型 | 关键字 | 含义 |
+|----------|--------|------|
+| 内连接 | `INNER JOIN` | 只返回两表都有匹配的记录 |
+| 左连接 | `LEFT JOIN` | 返回左表全部，右表无匹配则为 NULL |
+| 右连接 | `RIGHT JOIN` | 返回右表全部，左表无匹配则为 NULL |
+
+**ON 与 WHERE 的区别**：
+- `ON`：指定表与表如何关联（JOIN 后使用）
+- `WHERE`：关联后过滤结果
+
+**示例**（查询用户拥有的角色）：
+```sql
+SELECT r.* FROM sys_role r
+INNER JOIN sys_user_role ur ON r.id = ur.role_id
+WHERE ur.user_id = #{userId}
+```
+
+**选择依据**：
+- 需要双方都有匹配的数据 → `INNER JOIN`
+- 需要左表全部数据 → `LEFT JOIN`
+- 需要右表全部数据 → `RIGHT JOIN`
 
 ---
 

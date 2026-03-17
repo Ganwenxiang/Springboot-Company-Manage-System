@@ -66,7 +66,7 @@ public class AuthServiceImpl implements IAuthService {
     // 用户登出，清除ThreadLocal | ThreadLocal
     @Override
     public void logout() {
-        // 清除ThreadLocal中的用户信息
+        // 清除ThreadLocal中的用户信息，清除信息后，用户再操作时，请求头中携带的Token和UserId并清除，被拦截器拦截后，需要重新进行登录
         LoginUser.clear();
         log.info("用户登出成功");
     }
