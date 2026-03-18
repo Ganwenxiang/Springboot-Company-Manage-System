@@ -12,6 +12,17 @@ export function getEmployeeList(params) {
 }
 
 /**
+ * 高级搜索员工（支持多条件联合查询）
+ */
+export function searchEmployees(params) {
+  return request({
+    url: '/employees/search',
+    method: 'get',
+    params
+  })
+}
+
+/**
  * 获取员工详情
  */
 export function getEmployeeDetail(id) {

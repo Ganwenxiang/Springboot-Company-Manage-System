@@ -19,12 +19,42 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="状态">
+        <el-form-item label="职位">
+          <el-select v-model="searchForm.positionId" placeholder="请选择职位" clearable style="width: 150px">
+            <el-option
+              v-for="pos in positionList"
+              :key="pos.id"
+              :label="pos.positionName"
+              :value="pos.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="员工状态">
           <el-select v-model="searchForm.empStatus" placeholder="全部" clearable style="width: 120px">
             <el-option label="在职" :value="1" />
             <el-option label="离职" :value="2" />
             <el-option label="停职" :value="3" />
           </el-select>
+        </el-form-item>
+        <el-form-item label="入职状态">
+          <el-select v-model="searchForm.entryStatus" placeholder="全部" clearable style="width: 120px">
+            <el-option label="试用" :value="1" />
+            <el-option label="正式" :value="2" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="手机号">
+          <el-input v-model="searchForm.phone" placeholder="请输入手机号" clearable />
+        </el-form-item>
+        <el-form-item label="入职日期">
+          <el-date-picker
+            v-model="searchForm.entryDateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="YYYY-MM-DD"
+            style="width: 240px"
+          />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">
@@ -198,15 +228,21 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getEmployeeList, addEmployee, updateEmployee, deleteEmployee } from '@/api/employee'
+import { searchEmployees, addEmployee, updateEmployee, deleteEmployee } from '@/api/employee'
 import { getDeptTree } from '@/api/dept'
+import { getAllPositions } from '@/api/position'
 
 // 搜索表单
 const searchForm = reactive({
   empName: '',
   empNo: '',
   deptId: null,
-  empStatus: null
+  empStatus: null,
+  positionId: null,
+  entryStatus: null,
+  phone: '',
+  jobTitle: '',
+  entryDateRange: []
 })
 
 // 表格数据
@@ -216,6 +252,8 @@ const emptyText = ref('暂无数据')
 
 // 部门列表
 const deptList = ref([])
+// 职位列表
+const positionList = ref([])
 
 // 分页
 const pagination = reactive({
@@ -289,6 +327,16 @@ const loadDeptList = async () => {
   }
 }
 
+// 加载职位列表
+const loadPositionList = async () => {
+  try {
+    const res = await getAllPositions()
+    positionList.value = res.data || []
+  } catch (error) {
+    console.error('加载职位列表失败:', error)
+  }
+}
+
 // 加载员工列表
 const loadTableData = async () => {
   loading.value = true
@@ -296,9 +344,18 @@ const loadTableData = async () => {
     const params = {
       pageNum: pagination.pageNum,
       pageSize: pagination.pageSize,
-      ...searchForm
+      empName: searchForm.empName || undefined,
+      empNo: searchForm.empNo || undefined,
+      deptId: searchForm.deptId || undefined,
+      empStatus: searchForm.empStatus || undefined,
+      positionId: searchForm.positionId || undefined,
+      entryStatus: searchForm.entryStatus || undefined,
+      phone: searchForm.phone || undefined,
+      jobTitle: searchForm.jobTitle || undefined,
+      entryDateStart: searchForm.entryDateRange?.[0] || undefined,
+      entryDateEnd: searchForm.entryDateRange?.[1] || undefined
     }
-    const res = await getEmployeeList(params)
+    const res = await searchEmployees(params)
     tableData.value = res.data.list || []
     pagination.total = res.data.total || 0
   } catch (error) {
@@ -320,7 +377,12 @@ const handleReset = () => {
     empName: '',
     empNo: '',
     deptId: null,
-    empStatus: null
+    empStatus: null,
+    positionId: null,
+    entryStatus: null,
+    phone: '',
+    jobTitle: '',
+    entryDateRange: []
   })
   handleSearch()
 }
@@ -427,6 +489,7 @@ const handleCurrentChange = (val) => {
 
 onMounted(() => {
   loadDeptList()
+  loadPositionList()
   loadTableData()
 })
 </script>

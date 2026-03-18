@@ -29,7 +29,16 @@
       "Bash(npm run build)",
       "Bash(git add src/main/java/com/example/emps_project/dto/UpdateProfileDTO.java src/main/java/com/example/emps_project/controller/AuthController.java src/main/java/com/example/emps_project/service/impl/AuthServiceImpl.java frontend/src/api/auth.js frontend/src/views/Layout/index.vue API接口文档.md)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: 完善个人信息和修改密码功能\n\n- 修复登录时用户 IP 未入库的 Bug（AuthServiceImpl 添加 ThreadLocal 存储）\n- 新增个人信息更新接口 PUT /api/auth/profile\n- 新增 UpdateProfileDTO 数据传输对象\n- 前端添加个人信息弹窗（可修改昵称、头像）\n- 前端添加修改密码弹窗（含表单校验）\n- 更新 API 接口文档，添加知识点说明\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(mvn test -Dtest=PasswordGeneratorTest -q)"
+      "Bash(mvn test -Dtest=PasswordGeneratorTest -q)",
+      "Bash(git restore --staged target/surefire-reports/)",
+      "Bash(git config --global http.proxy http://127.0.0.1:10808)",
+      "Bash(git config --global https.proxy http://127.0.0.1:10808)",
+      "Bash(git push origin main)",
+      "Bash(netsh winhttp show proxy)",
+      "Bash(git config --global http.proxy http://127.0.0.1:10809)",
+      "Bash(git config --global https.proxy http://127.0.0.1:10809)",
+      "Bash(git config --global http.proxy http://127.0.0.1:7892)",
+      "Bash(git config --global https.proxy http://127.0.0.1:7892)"
     ]
   }
 }

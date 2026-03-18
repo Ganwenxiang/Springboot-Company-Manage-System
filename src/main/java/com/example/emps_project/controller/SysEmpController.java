@@ -19,7 +19,7 @@ public class SysEmpController {
     public Result<PageInfo<SysEmp>> list(
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize,
-            SysEmp emp) { // SpringMVC 会自动把 URL 参数封装进 emp 对象
+            SysEmp emp) { // SpringMVC 会自动把 URL 参数封装进 emp 对象，传入emo对象既可以做分页查询，又可以做条件查询，一次满足多个用法
 
         PageInfo<SysEmp> pageInfo = sysEmpService.selectEmpPage(pageNum, pageSize, emp);
         return Result.success(pageInfo);

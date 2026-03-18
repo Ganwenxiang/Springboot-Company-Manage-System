@@ -171,12 +171,22 @@ Authorization: Bearer <old_token>
 - **是否需要认证**: 是
 
 **请求参数**:
+
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | pageNum | Integer | 否 | 页码，默认1 |
 | pageSize | Integer | 否 | 每页条数，默认10 |
 | empName | String | 否 | 员工姓名（模糊查询） |
 | deptId | Long | 否 | 部门ID |
+
+### 知识点
+#### 1、有时一个接口可以实现多种功能
+
+#### 2、PageHelper 分页原理
+- `pageNum` 表示页码（从1开始），`pageSize` 表示每页条数
+- `PageHelper.startPage()` 通过 **ThreadLocal** 存储分页参数
+- MyBatis 拦截器自动从 ThreadLocal 取出参数，修改 SQL 添加 `LIMIT/OFFSET`
+- `new PageInfo<>(list)` 从查询结果中提取分页元数据（total、pages 等）
 
 ---
 
@@ -186,6 +196,7 @@ Authorization: Bearer <old_token>
 - **是否需要认证**: 是
 
 **请求参数**:
+
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | pageNum | Integer | 否 | 页码 |
@@ -194,6 +205,67 @@ Authorization: Bearer <old_token>
 | jobTitle | String | 否 | 职位名称 |
 | entryDateStart | Date | 否 | 入职日期开始 |
 | entryDateEnd | Date | 否 | 入职日期结束 |
+
+## 知识点
+
+#### 1、MyBatis 动态 SQL 拼接（高级搜索）
+
+**核心标签**：
+- `<where>`：自动添加 WHERE 关键字，自动去除开头多余的 AND/OR
+- `<if test="条件">`：条件成立时拼接 SQL 片段
+
+**三种常见判断方式**：
+
+```xml
+<!-- 1. 字符串模糊搜索：判断非null且非空 -->
+<if test="empName != null and empName != ''">
+    AND e.emp_name LIKE concat('%', #{empName}, '%')
+</if>
+
+<!-- 2. 精确匹配（ID/状态）：只判断非null -->
+<if test="deptId != null">
+    AND e.dept_id = #{deptId}
+</if>
+
+<!-- 3. 日期范围：使用 CDATA 防止 < > 被XML解析 -->
+<if test="entryDateStart != null">
+    <![CDATA[ AND e.entry_date >= #{entryDateStart} ]]>
+</if>
+```
+
+**拼接原理**：根据前端传入参数的有无，动态决定是否拼接对应条件，实现灵活的多条件联合查询。
+
+#### 2、Spring MVC 参数接收注解
+
+| 注解 | 参数来源 | 示例URL | 用法示例 |
+|------|---------|---------|---------|
+| `@RequestParam` | URL查询参数 | `/employees?pageNum=1&empName=张` | `@RequestParam(defaultValue="1") Integer pageNum` |
+| `@PathVariable` | URL路径变量 | `/employees/123` | `@PathVariable Long id` |
+| `@RequestBody` | 请求体(JSON) | POST/PUT 请求体 | `@RequestBody SysEmp emp` |
+
+**详细说明**：
+
+```java
+// @RequestParam：接收URL问号后的参数，支持默认值
+@GetMapping("/employees")
+public Result list(
+    @RequestParam(defaultValue = "1") Integer pageNum,
+    @RequestParam(defaultValue = "10") Integer pageSize
+) { }
+
+// @PathVariable：接收URL路径中的变量，用 {id} 占位
+@GetMapping("/employees/{id}")
+public Result getById(@PathVariable Long id) { }
+
+// @RequestBody：接收请求体中的JSON数据，自动封装为对象   
+@PostMapping("/employees")
+public Result add(@RequestBody SysEmp emp) { }
+```
+
+**使用场景**：
+- `@RequestParam`：GET请求的查询条件、分页参数
+- `@PathVariable`：根据ID查询、删除等操作
+- `@RequestBody`：POST/PUT 提交的表单数据、JSON对象
 
 ---
 
