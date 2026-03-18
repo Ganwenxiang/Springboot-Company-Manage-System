@@ -2,10 +2,10 @@
   <div class="dashboard-container">
     <!-- 统计卡片 -->
     <el-row :gutter="20" class="stats-row">
-      <el-col :span="6">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: #ecf5ff;">
-            <el-icon :size="32" color="#409EFF"><User /></el-icon>
+      <el-col :xs="24" :sm="12" :md="6">
+        <div class="stat-card stat-card-blue">
+          <div class="stat-icon">
+            <el-icon :size="28"><User /></el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ overviewData.totalEmps || 0 }}</div>
@@ -13,10 +13,10 @@
           </div>
         </div>
       </el-col>
-      <el-col :span="6">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: #e1f3d8;">
-            <el-icon :size="32" color="#67C23A"><CircleCheck /></el-icon>
+      <el-col :xs="24" :sm="12" :md="6">
+        <div class="stat-card stat-card-green">
+          <div class="stat-icon">
+            <el-icon :size="28"><CircleCheck /></el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ overviewData.todayAttendance || 0 }}</div>
@@ -24,10 +24,10 @@
           </div>
         </div>
       </el-col>
-      <el-col :span="6">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: #fef0f0;">
-            <el-icon :size="32" color="#F56C6C"><Document /></el-icon>
+      <el-col :xs="24" :sm="12" :md="6">
+        <div class="stat-card stat-card-red">
+          <div class="stat-icon">
+            <el-icon :size="28"><Document /></el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ overviewData.pendingLeave || 0 }}</div>
@@ -35,10 +35,10 @@
           </div>
         </div>
       </el-col>
-      <el-col :span="6">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: #fdf6ec;">
-            <el-icon :size="32" color="#E6A23C"><Timer /></el-icon>
+      <el-col :xs="24" :sm="12" :md="6">
+        <div class="stat-card stat-card-orange">
+          <div class="stat-icon">
+            <el-icon :size="28"><Timer /></el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ overviewData.pendingOvertime || 0 }}</div>
@@ -50,53 +50,67 @@
 
     <!-- 图表区域 -->
     <el-row :gutter="20" class="charts-row">
-      <el-col :span="12">
+      <el-col :xs="24" :lg="12">
         <el-card class="chart-card" shadow="never">
           <template #header>
-            <div class="card-header">
-              <span>员工部门分布</span>
+            <div class="card-header-title">
+              <el-icon class="header-icon"><PieChart /></el-icon>
+              员工部门分布
             </div>
           </template>
           <div class="chart-container">
-            <el-empty v-if="empDistribution.length === 0" description="暂无数据" />
+            <el-empty v-if="empDistribution.length === 0" description="暂无数据" :image-size="80" />
             <div v-else class="dept-list">
               <div
-                v-for="item in empDistribution"
+                v-for="(item, index) in empDistribution"
                 :key="item.deptId"
                 class="dept-item"
               >
-                <div class="dept-name">{{ item.deptName }}</div>
+                <div class="dept-info">
+                  <div class="dept-color" :style="{ background: colors[index % colors.length] }"></div>
+                  <span class="dept-name">{{ item.deptName }}</span>
+                </div>
                 <div class="dept-count">
-                  <el-tag type="primary">{{ item.empCount }}人</el-tag>
+                  <span class="count-number">{{ item.empCount }}</span>
+                  <span class="count-unit">人</span>
                 </div>
               </div>
             </div>
           </div>
         </el-card>
       </el-col>
-      <el-col :span="12">
+      <el-col :xs="24" :lg="12">
         <el-card class="chart-card" shadow="never">
           <template #header>
-            <div class="card-header">
-              <span>快捷操作</span>
+            <div class="card-header-title">
+              <el-icon class="header-icon"><Operation /></el-icon>
+              快捷操作
             </div>
           </template>
           <div class="quick-actions">
             <div class="action-item" @click="handleAction('attendance')">
-              <el-icon :size="24" color="#409EFF"><Clock /></el-icon>
-              <span>考勤打卡</span>
+              <div class="action-icon action-icon-blue">
+                <el-icon :size="24"><Clock /></el-icon>
+              </div>
+              <span class="action-text">考勤打卡</span>
             </div>
             <div class="action-item" @click="handleAction('leave')">
-              <el-icon :size="24" color="#67C23A"><Document /></el-icon>
-              <span>请假申请</span>
+              <div class="action-icon action-icon-green">
+                <el-icon :size="24"><Document /></el-icon>
+              </div>
+              <span class="action-text">请假申请</span>
             </div>
             <div class="action-item" @click="handleAction('overtime')">
-              <el-icon :size="24" color="#E6A23C"><Timer /></el-icon>
-              <span>加班申请</span>
+              <div class="action-icon action-icon-orange">
+                <el-icon :size="24"><Timer /></el-icon>
+              </div>
+              <span class="action-text">加班申请</span>
             </div>
             <div class="action-item" @click="handleAction('salary')">
-              <el-icon :size="24" color="#F56C6C"><Money /></el-icon>
-              <span>我的薪资</span>
+              <div class="action-icon action-icon-purple">
+                <el-icon :size="24"><Money /></el-icon>
+              </div>
+              <span class="action-text">我的薪资</span>
             </div>
           </div>
         </el-card>
@@ -114,6 +128,8 @@ const router = useRouter()
 
 const overviewData = ref({})
 const empDistribution = ref([])
+
+const colors = ['#5b8def', '#52c41a', '#faad14', '#ff4d4f', '#722ed1', '#13c2c2']
 
 // 加载数据
 const loadData = async () => {
@@ -154,117 +170,241 @@ onMounted(() => {
 
 <style scoped lang="css">
 .dashboard-container {
-  padding: 20px;
+  padding: 24px;
+  min-height: calc(100vh - 60px);
 }
 
+/* 统计卡片 */
 .stats-row {
   margin-bottom: 20px;
+}
+
+.stats-row .el-col {
+  margin-bottom: 16px;
 }
 
 .stat-card {
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 24px;
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  }
-
-  .stat-icon {
-    width: 64px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    margin-right: 16px;
-  }
-
-  .stat-content {
-    flex: 1;
-
-    .stat-value {
-      font-size: 28px;
-      font-weight: 600;
-      color: var(--color-text-primary);
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-
-    .stat-label {
-      font-size: 14px;
-      color: var(--color-text-secondary);
-    }
-  }
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  height: 100%;
 }
 
-.charts-row {
-  .chart-card {
-    .card-header {
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--color-text-primary);
-    }
-
-    .chart-container {
-      height: 280px;
-    }
-  }
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
 
+.stat-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.stat-card-blue .stat-icon {
+  background: linear-gradient(135deg, #e8f4fd 0%, #d6e9fc 100%);
+  color: #5b8def;
+}
+
+.stat-card-green .stat-icon {
+  background: linear-gradient(135deg, #e8f7ed 0%, #d1f0db 100%);
+  color: #52c41a;
+}
+
+.stat-card-red .stat-icon {
+  background: linear-gradient(135deg, #fef1f2 0%, #fde3e5 100%);
+  color: #ff4d4f;
+}
+
+.stat-card-orange .stat-icon {
+  background: linear-gradient(135deg, #fff8eb 0%, #ffefcf 100%);
+  color: #faad14;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* 图表卡片 */
+.charts-row .el-col {
+  margin-bottom: 20px;
+}
+
+.chart-card {
+  height: 100%;
+}
+
+.card-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.header-icon {
+  color: var(--el-color-primary);
+}
+
+.chart-container {
+  min-height: 280px;
+}
+
+/* 部门列表 */
 .dept-list {
-  .dept-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px;
-    background: var(--color-bg-secondary);
-    border-radius: 8px;
-    margin-bottom: 12px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    .dept-name {
-      font-size: 15px;
-      color: var(--color-text-primary);
-    }
-  }
+  padding: 8px 0;
 }
 
+.dept-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  transition: all 0.25s ease;
+}
+
+.dept-item:hover {
+  background: #f0f5ff;
+}
+
+.dept-item:last-child {
+  margin-bottom: 0;
+}
+
+.dept-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dept-color {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dept-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.dept-count {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.count-number {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.count-unit {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+/* 快捷操作 */
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  padding: 10px;
+  padding: 8px 0;
+}
 
-  .action-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 16px;
-    background: var(--color-bg-secondary);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 16px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
 
-    &:hover {
-      background: var(--color-primary-light-9);
-      transform: translateY(-2px);
-    }
+.action-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
 
-    span {
-      margin-top: 12px;
-      font-size: 14px;
-      color: var(--color-text-primary);
-    }
+.action-icon {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+
+.action-icon-blue {
+  background: linear-gradient(135deg, #5b8def 0%, #4a7de0 100%);
+  color: #fff;
+}
+
+.action-icon-green {
+  background: linear-gradient(135deg, #52c41a 0%, #3fad0a 100%);
+  color: #fff;
+}
+
+.action-icon-orange {
+  background: linear-gradient(135deg, #faad14 0%, #e89c0a 100%);
+  color: #fff;
+}
+
+.action-icon-purple {
+  background: linear-gradient(135deg, #722ed1 0%, #5e1db5 100%);
+  color: #fff;
+}
+
+.action-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .quick-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-card {
+    padding: 20px;
+  }
+
+  .stat-value {
+    font-size: 26px;
   }
 }
 </style>

@@ -3,8 +3,16 @@
     <!-- 侧边栏 -->
     <el-aside :width="isCollapse ? '64px' : '220px'" class="sidebar">
       <div class="sidebar-logo">
-        <span v-if="!isCollapse">员工管理</span>
-        <span v-else>EMS</span>
+        <div class="logo-icon-small">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <transition name="fade">
+          <span v-if="!isCollapse" class="logo-text">员工管理系统</span>
+        </transition>
       </div>
 
       <el-menu
@@ -61,8 +69,11 @@
         <div class="header-right">
           <el-dropdown @command="handleCommand">
             <div class="user-info">
-              <el-avatar :size="32" :icon="UserFilled" />
+              <el-avatar :size="36" class="user-avatar">
+                {{ (userStore.nickname || userStore.username || 'U').charAt(0).toUpperCase() }}
+              </el-avatar>
               <span class="username">{{ userStore.nickname || userStore.username }}</span>
+              <el-icon class="arrow-icon"><ArrowDown /></el-icon>
             </div>
             <template #dropdown>
               <el-dropdown-menu>
@@ -138,7 +149,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { UserFilled, User, Lock, SwitchButton } from '@element-plus/icons-vue'
+import { User, Lock, SwitchButton, ArrowDown } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { changePassword, updateProfile } from '@/api/auth'
 
@@ -330,90 +341,144 @@ const handleLogout = () => {
   display: flex;
   width: 100%;
   height: 100vh;
+  background: var(--color-bg-tertiary);
 }
 
+/* 侧边栏样式 */
 .sidebar {
-  background: var(--sidebar-bg);
-  transition: width 0.3s;
+  background: linear-gradient(180deg, #1e3a5f 0%, #0d2137 100%);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-x: hidden;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 100;
 }
 
-.sidebar .sidebar-logo {
+.sidebar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.1), transparent);
+}
+
+.sidebar-logo {
   height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  gap: 12px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logo-icon-small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #5b8def 0%, #7c3aed 100%);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.logo-icon-small svg {
+  width: 20px;
+  height: 20px;
+  color: white;
+}
+
+.logo-text {
+  font-size: 16px;
   font-weight: 600;
   color: #fff;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+  letter-spacing: 1px;
 }
 
-.sidebar .sidebar-menu {
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.sidebar-menu {
   border: none;
   background: transparent;
+  padding: 12px 8px;
 }
 
-.sidebar .sidebar-menu :deep(.el-menu-item),
-.sidebar .sidebar-menu :deep(.el-sub-menu__title) {
-  color: var(--sidebar-text);
+.sidebar-menu :deep(.el-menu-item),
+.sidebar-menu :deep(.el-sub-menu__title) {
+  color: rgba(255, 255, 255, 0.75);
+  border-radius: 8px;
+  margin: 4px 0;
+  height: 46px;
+  line-height: 46px;
+  transition: all 0.25s ease;
 }
 
-.sidebar .sidebar-menu :deep(.el-menu-item):hover,
-.sidebar .sidebar-menu :deep(.el-sub-menu__title):hover {
-  background: rgba(255, 255, 255, 0.05) !important;
+.sidebar-menu :deep(.el-menu-item:hover),
+.sidebar-menu :deep(.el-sub-menu__title:hover) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #fff;
 }
 
-.sidebar .sidebar-menu :deep(.el-menu-item.is-active) {
-  background: var(--sidebar-active-bg) !important;
-  color: var(--sidebar-active-text) !important;
+.sidebar-menu :deep(.el-menu-item.is-active) {
+  background: linear-gradient(90deg, rgba(91, 141, 239, 0.9) 0%, rgba(124, 58, 237, 0.9) 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(91, 141, 239, 0.3);
 }
 
-.sidebar .sidebar-menu :deep(.el-sub-menu.is-active > .el-sub-menu__title) {
+.sidebar-menu :deep(.el-sub-menu.is-active > .el-sub-menu__title) {
   color: #fff !important;
 }
 
+.sidebar-menu :deep(.el-sub-menu .el-menu) {
+  background: rgba(0, 0, 0, 0.15) !important;
+  margin: 4px 0;
+  border-radius: 8px;
+}
+
+.sidebar-menu :deep(.el-sub-menu .el-menu .el-menu-item) {
+  height: 42px;
+  line-height: 42px;
+  padding-left: 52px !important;
+}
+
 /* 子菜单浮层样式 */
-.sidebar .sidebar-menu :deep(.el-menu--popup) {
-  background: #1a4060 !important;
+.sidebar-menu :deep(.el-menu--popup) {
+  background: #1a3a5c !important;
   min-width: 180px !important;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  padding: 8px;
 }
 
-.sidebar .sidebar-menu :deep(.el-menu--popup .el-menu-item) {
-  color: var(--sidebar-text) !important;
+.sidebar-menu :deep(.el-menu--popup .el-menu-item) {
+  color: rgba(255, 255, 255, 0.75) !important;
   background: transparent !important;
+  border-radius: 6px;
 }
 
-.sidebar .sidebar-menu :deep(.el-menu--popup .el-menu-item:hover) {
+.sidebar-menu :deep(.el-menu--popup .el-menu-item:hover) {
   background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
 }
 
-.sidebar .sidebar-menu :deep(.el-menu--popup .el-menu-item.is-active) {
-  background: var(--sidebar-active-bg) !important;
-  color: var(--sidebar-active-text) !important;
+.sidebar-menu :deep(.el-menu--popup .el-menu-item.is-active) {
+  background: linear-gradient(90deg, rgba(91, 141, 239, 0.9) 0%, rgba(124, 58, 237, 0.9) 100%) !important;
+  color: #fff !important;
 }
 
-/* 嵌套子菜单样式 */
-.sidebar .sidebar-menu :deep(.el-sub-menu .el-sub-menu__title) {
-  color: var(--sidebar-text) !important;
-}
-
-.sidebar .sidebar-menu :deep(.el-sub-menu .el-menu) {
-  background: #1a4060 !important;
-}
-
-.sidebar .sidebar-menu :deep(.el-sub-menu .el-menu .el-menu-item) {
-  color: var(--sidebar-text) !important;
-  background: transparent !important;
-  padding-left: 50px !important;
-}
-
-.sidebar .sidebar-menu :deep(.el-sub-menu .el-menu .el-menu-item:hover) {
-  background: rgba(255, 255, 255, 0.1) !important;
-}
-
+/* 主容器 */
 .main-container {
   flex: 1;
   display: flex;
@@ -421,14 +486,17 @@ const handleLogout = () => {
   overflow: hidden;
 }
 
+/* 头部样式 */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: var(--header-bg);
-  border-bottom: 1px solid var(--color-border-light);
-  padding: 0 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--color-border-lighter);
+  padding: 0 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  position: relative;
+  z-index: 99;
 }
 
 .header .header-left {
@@ -440,11 +508,15 @@ const handleLogout = () => {
 .header .header-left .collapse-icon {
   font-size: 20px;
   cursor: pointer;
-  color: var(--color-text-regular);
+  color: var(--color-text-secondary);
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.25s ease;
 }
 
 .header .header-left .collapse-icon:hover {
   color: var(--el-color-primary);
+  background: var(--color-bg-secondary);
 }
 
 .header .header-right .user-info {
@@ -452,39 +524,58 @@ const handleLogout = () => {
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  padding: 5px 10px;
-  border-radius: 4px;
-  transition: background 0.3s;
+  padding: 6px 12px;
+  border-radius: 10px;
+  transition: all 0.25s ease;
 }
 
 .header .header-right .user-info:hover {
   background: var(--color-bg-secondary);
 }
 
+.user-avatar {
+  background: linear-gradient(135deg, #5b8def 0%, #7c3aed 100%);
+  color: #fff;
+  font-weight: 600;
+}
+
 .header .header-right .user-info .username {
   font-size: 14px;
+  font-weight: 500;
   color: var(--color-text-primary);
 }
 
+.header .header-right .user-info .arrow-icon {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  transition: transform 0.25s ease;
+}
+
+.header .header-right .user-info:hover .arrow-icon {
+  transform: rotate(180deg);
+}
+
+/* 主内容区 */
 .main-content {
   flex: 1;
   overflow-y: auto;
   background: var(--color-bg-tertiary);
+  padding: 0;
 }
 
 /* 页面切换动画 */
 .fade-transform-enter-active,
 .fade-transform-leave-active {
-  transition: all 0.3s;
+  transition: all 0.25s ease;
 }
 
 .fade-transform-enter-from {
   opacity: 0;
-  transform: translateX(-10px);
+  transform: translateY(10px);
 }
 
 .fade-transform-leave-to {
   opacity: 0;
-  transform: translateX(10px);
+  transform: translateY(-10px);
 }
 </style>
