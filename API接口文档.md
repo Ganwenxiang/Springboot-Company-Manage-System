@@ -346,6 +346,84 @@ public Result add(@RequestBody SysEmp emp) { }
 }
 ```
 
+## 知识点
+
+#### 1、Redis 缓存机制
+
+**核心组件**：
+- `StringRedisTemplate`：Spring 提供的 Redis 操作模板
+- `ObjectMapper`：Jackson 库，用于 JSON 序列化/反序列化
+- `TypeReference`：解决泛型擦除问题，保留泛型类型信息
+
+**缓存流程图**：
+```
+查询请求 → 查Redis缓存 → 命中? → 是 → 反序列化返回
+                            ↓否
+                      查询数据库 → 组装数据 → 序列化存入Redis → 返回
+```
+
+**代码示例**：
+```java
+// 1. 定义缓存Key
+private static final String CACHE_KEY = "cache:dept:tree";
+
+// 2. 查询缓存
+String jsonStr = redisTemplate.opsForValue().get(CACHE_KEY);
+
+// 3. 缓存命中：JSON → Java对象（反序列化）
+List<SysDept> list = objectMapper.readValue(jsonStr, new TypeReference<List<SysDept>>() {});
+
+// 4. 缓存未命中：Java对象 → JSON（序列化），写入缓存
+String cacheValue = objectMapper.writeValueAsString(treeList);
+redisTemplate.opsForValue().set(CACHE_KEY, cacheValue, 30, TimeUnit.MINUTES);
+
+// 5. 数据变更时删除缓存
+redisTemplate.delete(CACHE_KEY);
+```
+
+**序列化与反序列化**：
+
+| 方法 | 作用 | 方向 |
+|------|------|------|
+| `writeValueAsString()` | Java对象 → JSON字符串 | 序列化 |
+| `readValue()` | JSON字符串 → Java对象 | 反序列化 |
+
+**缓存策略**：
+- **TTL过期**：设置30分钟自动过期，保证数据新鲜度
+- **主动删除**：数据增删改时删除缓存，下次查询重新加载
+- **异常容错**：缓存读写失败不影响业务流程，降级查数据库
+
+**缓存命中判断**：
+```java
+// StringUtils.hasText() 判断条件：不为null、不为空字符串、包含非空白字符
+String jsonStr = redisTemplate.opsForValue().get(CACHE_KEY);
+if (StringUtils.hasText(jsonStr)) {
+    // 缓存命中
+}
+```
+
+#### 2、ObjectMapper 类（Jackson 库）
+
+**简介**：`ObjectMapper` 是 Jackson 库的核心类，用于 Java 对象与 JSON 之间的相互转换。
+
+**常用方法**：
+
+| 方法 | 作用 | 示例 |
+|------|------|------|
+| `writeValueAsString(obj)` | Java对象 → JSON字符串 | `mapper.writeValueAsString(dept)` |
+| `readValue(json, Class)` | JSON → Java对象 | `mapper.readValue(json, SysDept.class)` |
+| `readValue(json, TypeReference)` | JSON → 泛型集合 | `mapper.readValue(json, new TypeReference<List<SysDept>>(){})` |
+
+**为什么需要 TypeReference？**
+
+```java
+// ❌ 错误：泛型擦除，变成 List<Object>
+List<SysDept> list = mapper.readValue(json, List.class);
+
+// ✅ 正确：保留泛型信息
+List<SysDept> list = mapper.readValue(json, new TypeReference<List<SysDept>>() {});
+```
+
 ---
 
 ### 3.2 新增部门

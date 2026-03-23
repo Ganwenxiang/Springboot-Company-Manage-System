@@ -1,6 +1,7 @@
 package com.example.emps_project.mapper;
 
 import com.example.emps_project.entity.SysDept;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,9 @@ public interface SysDeptMapper {
     int checkChildCount(Long deptId);
 
     // 查询所有部门及员工数量 | MyBatis关联查询、聚合查询
-    List<Map<String, Object>> selectAllDeptsWithCount();
+    // @MapKey 指定用 id 字段作为 Map 的 key，返回 Map<Long, Map<String, Object>>
+    @MapKey("id")
+    Map<Long, Map<String, Object>> selectAllDeptsWithCount();
 
     // 更新部门 | MyBatis update
     int updateDept(SysDept dept);

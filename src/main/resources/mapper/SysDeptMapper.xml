@@ -25,7 +25,7 @@
     <insert id="insertDept" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_dept(parent_id, dept_name, order_num, status, create_time, update_time)
         VALUES (#{parentId}, #{deptName}, #{orderNum}, #{status}, NOW(), NOW())
-        #  useGeneratedKeys主键是由MyBatis主动生成的   keyProperty当插入成功后，MyBatis会将数据库自动生成的id自动赋值回传入的java对象的id属性中，这样在代码里能立即知道新数据的id是多少
+
     </insert>
 
     <select id="checkChildCount" resultType="int">

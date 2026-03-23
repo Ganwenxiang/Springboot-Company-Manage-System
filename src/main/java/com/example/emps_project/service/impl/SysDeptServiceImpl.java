@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class SysDeptServiceImpl implements ISysDeptService {
 
-    //定义缓存key
+    //定义缓存key，定义键名
     private static final String CACHE_KEY = "cache:dept:tree";
     @Autowired
     private SysDeptMapper sysDeptMapper;
@@ -29,12 +29,14 @@ public class SysDeptServiceImpl implements ISysDeptService {
 
     @Override
     public List<SysDept> getDeptTree() {
-        //查询redsi缓存
+
+        //查询redsi缓存，从redis缓存中获取键名对应的值
         String jsonStr = redisTemplate.opsForValue().get(CACHE_KEY);
-        if (StringUtils.hasText(jsonStr)) {
+
+        if (StringUtils.hasText(jsonStr)) {  //判断是否为空，即不为null、不为" "，不为其余无效符号
             //命中缓存，直接将JSON转回List
             try {
-                return objectMapper.readValue(jsonStr, new TypeReference<List<SysDept>>() {
+                return objectMapper.readValue(jsonStr, new TypeReference<List<SysDept>>() { //反序列化
                 });
             } catch (Exception e) {
                 e.printStackTrace();

@@ -66,10 +66,10 @@ public class StatisticsServiceImpl implements IStatisticsService {
     public List<StatisticsDTO.EmpDistribution> getEmpDistribution() {
         List<StatisticsDTO.EmpDistribution> result = new ArrayList<>();
 
-        // 获取所有部门
-        List<Map<String, Object>> depts = sysDeptMapper.selectAllDeptsWithCount();
+        // 获取所有部门（返回 Map<部门ID, 部门信息>）
+        Map<Long, Map<String, Object>> depts = sysDeptMapper.selectAllDeptsWithCount();
 
-        for (Map<String, Object> dept : depts) {
+        for (Map<String, Object> dept : depts.values()) {
             StatisticsDTO.EmpDistribution distribution = new StatisticsDTO.EmpDistribution();
             distribution.setDeptId(((Number) dept.get("id")).longValue());
             distribution.setDeptName((String) dept.get("dept_name"));
@@ -128,10 +128,10 @@ public class StatisticsServiceImpl implements IStatisticsService {
     public List<StatisticsDTO.DeptAttendance> getDeptAttendance(String month) {
         List<StatisticsDTO.DeptAttendance> result = new ArrayList<>();
 
-        // 获取所有部门
-        List<Map<String, Object>> depts = sysDeptMapper.selectAllDeptsWithCount();
+        // 获取所有部门（返回 Map<部门ID, 部门信息>）
+        Map<Long, Map<String, Object>> depts = sysDeptMapper.selectAllDeptsWithCount();
 
-        for (Map<String, Object> dept : depts) {
+        for (Map<String, Object> dept : depts.values()) {
             StatisticsDTO.DeptAttendance attendance = new StatisticsDTO.DeptAttendance();
             attendance.setDeptId(((Number) dept.get("id")).longValue());
             attendance.setDeptName((String) dept.get("dept_name"));
